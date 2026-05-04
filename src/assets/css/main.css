@@ -1,36 +1,362 @@
+/* Modern Color Palette */
+:root {
+    --primary-color: #0057e2;
+    --primary-dark: #003d9f;
+    --primary-light: #4d8bff;
+    --accent-color: #00d4ff;
+    --gradient-start: #0057e2;
+    --gradient-end: #00a8e8;
+    --text-muted: #6c757d;
+    --border-radius: 12px;
+    --transition-speed: 0.3s;
+    --shadow-sm: 0 2px 8px rgba(0, 87, 226, 0.1);
+    --shadow-md: 0 4px 16px rgba(0, 87, 226, 0.15);
+    --shadow-lg: 0 8px 32px rgba(0, 87, 226, 0.2);
+}
+
+/* Dark theme adjustments */
+[data-bs-theme="dark"] {
+    --shadow-sm: 0 2px 8px rgba(77, 139, 255, 0.15);
+    --shadow-md: 0 4px 16px rgba(77, 139, 255, 0.2);
+    --shadow-lg: 0 8px 32px rgba(77, 139, 255, 0.25);
+}
+
+/* Base Styles */
 body {
     text-rendering: optimizeLegibility;
     text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.7;
 }
 
 img {
     pointer-events: none; /* Removes Microsoft Edge - Bing search on images */
 }
 
-a, a:active, a:visited {
-    color: #0057e2;
-    text-decoration: none;
-}
-
-a:hover {
-    color: #fff;
-}
-
-.icon {
-    fill: #0057e2;
-}
-
-.icon:hover {
-    fill: #fff;
-}
-
-#tagline {
-    font-size: 2rem;
-    margin: 0;
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 1rem;
 }
 
 h2 {
-    font-size: 1.5rem;
+    font-size: 2rem;
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Links */
+a, a:active, a:visited {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: all var(--transition-speed) ease;
+    position: relative;
+}
+
+a:hover {
+    color: var(--primary-light);
+    transform: translateY(-2px);
+}
+
+a:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 4px;
+    border-radius: 4px;
+}
+
+/* Dark theme link color */
+[data-bs-theme="dark"] a,
+[data-bs-theme="dark"] a:active,
+[data-bs-theme="dark"] a:visited {
+    color: var(--primary-light);
+}
+
+[data-bs-theme="dark"] a:hover {
+    color: var(--accent-color);
+}
+
+/* Icons */
+.icon {
+    fill: var(--primary-color);
+    transition: all var(--transition-speed) ease;
+}
+
+.icon:hover {
+    fill: var(--primary-light);
+    transform: scale(1.15);
+}
+
+[data-bs-theme="dark"] .icon {
+    fill: var(--primary-light);
+}
+
+[data-bs-theme="dark"] .icon:hover {
+    fill: var(--accent-color);
+}
+
+/* Header Enhancements */
+header {
+    background: linear-gradient(180deg, rgba(0, 87, 226, 0.03) 0%, rgba(0, 168, 232, 0.05) 100%);
+    padding-bottom: 2rem;
+    margin-bottom: 3rem;
+}
+
+[data-bs-theme="dark"] header {
+    background: linear-gradient(180deg, rgba(77, 139, 255, 0.05) 0%, rgba(0, 168, 232, 0.08) 100%);
+}
+
+.navbar {
+    box-shadow: var(--shadow-sm);
+    padding: 1rem 0;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    transition: transform var(--transition-speed) ease;
+}
+
+.navbar-brand:hover {
+    transform: scale(1.02);
+}
+
+/* Hero Section */
+header > p {
+    margin: 2rem auto;
+    max-width: 300px;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+/* Only apply floating animation if user hasn't requested reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+    header > p {
+        animation: float 6s ease-in-out infinite;
+    }
+}
+
+header img {
+    filter: drop-shadow(0 10px 30px rgba(0, 87, 226, 0.2));
+}
+
+[data-bs-theme="dark"] header img {
+    filter: drop-shadow(0 10px 30px rgba(77, 139, 255, 0.3));
+}
+
+/* Main Content */
+#content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* Link Cards */
+#content > p {
+    background: var(--bs-body-bg);
+    border: 2px solid transparent;
+    border-radius: var(--border-radius);
+    padding: 1.25rem 1.5rem;
+    margin: 1rem auto;
+    max-width: 600px;
+    transition: all var(--transition-speed) ease;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+#content > p::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+    transform: scaleX(0);
+    transition: transform var(--transition-speed) ease;
+}
+
+#content > p:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-light);
+}
+
+#content > p:hover::before {
+    transform: scaleX(1);
+}
+
+#content > p a {
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+/* Footer Enhancements */
+footer {
+    margin-top: 4rem;
+    padding: 2rem 0;
+    background: linear-gradient(180deg, rgba(0, 87, 226, 0.02) 0%, rgba(0, 168, 232, 0.04) 100%);
+}
+
+[data-bs-theme="dark"] footer {
+    background: linear-gradient(180deg, rgba(77, 139, 255, 0.04) 0%, rgba(0, 168, 232, 0.06) 100%);
+}
+
+footer .border-top {
+    border-color: rgba(0, 87, 226, 0.1) !important;
+}
+
+[data-bs-theme="dark"] footer .border-top {
+    border-color: rgba(77, 139, 255, 0.2) !important;
+}
+
+footer p {
+    line-height: 1.6;
+}
+
+footer .nav li {
+    transition: transform var(--transition-speed) ease;
+}
+
+footer .nav li:hover {
+    transform: translateY(-3px);
+}
+
+/* Button Enhancements */
+.btn-link {
+    transition: all var(--transition-speed) ease;
+}
+
+.btn-link:hover {
+    transform: scale(1.05);
+}
+
+.navbar-toggler {
+    border: 2px solid var(--primary-color);
+    transition: all var(--transition-speed) ease;
+}
+
+.navbar-toggler:hover {
+    background-color: rgba(0, 87, 226, 0.1);
+    transform: scale(1.05);
+}
+
+[data-bs-theme="dark"] .navbar-toggler {
+    border-color: var(--primary-light);
+}
+
+[data-bs-theme="dark"] .navbar-toggler:hover {
+    background-color: rgba(77, 139, 255, 0.15);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(0, 87, 226, 0.1);
+    overflow: hidden;
+}
+
+[data-bs-theme="dark"] .dropdown-menu {
+    border-color: rgba(77, 139, 255, 0.2);
+}
+
+.dropdown-item {
+    transition: all 0.2s ease;
+    padding: 0.75rem 1rem;
+}
+
+.dropdown-item:hover {
+    background: linear-gradient(90deg, rgba(0, 87, 226, 0.1), rgba(0, 168, 232, 0.1));
+    transform: translateX(5px);
+}
+
+[data-bs-theme="dark"] .dropdown-item:hover {
+    background: linear-gradient(90deg, rgba(77, 139, 255, 0.15), rgba(0, 168, 232, 0.15));
+}
+
+/* Accessibility Improvements */
+a:focus-visible,
+button:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+[data-bs-theme="dark"] a:focus-visible,
+[data-bs-theme="dark"] button:focus-visible {
+    outline-color: var(--primary-light);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    h2 {
+        font-size: 1.75rem;
+    }
+    
+    #content > p {
+        padding: 1rem;
+        font-size: 0.95rem;
+    }
+    
+    header > p {
+        margin: 1.5rem auto;
+    }
+    
+    footer .container {
+        text-align: center;
+    }
+    
+    footer .col-md-4 {
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* Animation for page load */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Only apply animations if user hasn't requested reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+    #content > p {
+        animation: fadeInUp 0.6s ease forwards;
+        opacity: 0;
+    }
+
+    #content > p:nth-child(2) { animation-delay: 0.1s; }
+    #content > p:nth-child(3) { animation-delay: 0.2s; }
+    #content > p:nth-child(4) { animation-delay: 0.3s; }
+    #content > p:nth-child(5) { animation-delay: 0.4s; }
+    #content > p:nth-child(6) { animation-delay: 0.5s; }
+}
+
+/* For users who prefer reduced motion, show content immediately */
+@media (prefers-reduced-motion: reduce) {
+    #content > p {
+        opacity: 1;
+        animation: none;
+    }
+}
+
+/* Legacy Support */
+#tagline {
+    font-size: 2rem;
+    margin: 0;
 }
 
 #helpline {
