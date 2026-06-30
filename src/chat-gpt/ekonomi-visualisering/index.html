@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Förmögenhetsbyggaren V2 — Reglage</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --secondary: #3b82f6;
+            --accent: #f59e0b;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 2rem 1rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Layout Grid */
+        .app-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 900px) {
+            .app-grid {
+                grid-template-columns: 400px 1fr;
+            }
+        }
+
+        /* Kort/Paneler */
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Sliders Styling */
+        .input-group {
+            margin-bottom: 2rem;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .slider-header label {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .slider-value {
+            font-weight: 700;
+            color: var(--secondary);
+            background: #eff6ff;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e2e8f0;
+            height: 8px;
+            border-radius: 9999px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--secondary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.1s, background-color 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: var(--primary);
+        }
+
+        /* KPI / Resultat-kort */
+        .results-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 5px solid var(--secondary);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        .kpi-card.total { border-left-color: var(--primary); }
+        .kpi-card.interest { border-left-color: var(--accent); }
+
+        .kpi-card h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .kpi-card .value {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        /* Graf-container */
+        .chart-container {
+            position: relative;
+            height: 450px;
+            width: 100%;
+        }
+
+        /* Pedagogisk förklaring */
+        .insight-box {
+            margin-top: 1.5rem;
+            background: #f0fdf4;
+            border-radius: 10px;
+            padding: 1.25rem;
+            border-left: 4px solid var(--primary);
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Förmögenhetsbyggaren</h1>
+        <p>Dra i reglagen för att se hur snabbt dina investeringar växer över tid.</p>
+    </header>
+
+    <div class="app-grid">
+        <div class="card">
+            <div class="input-group">
+                <div class="slider-header">
+                    <label for="initialCapital">Startkapital</label>
+                    <span class="slider-value" id="initialCapitalVal">0 kr</span>
+                </div>
+                <input type="range" id="initialCapital" min="0" max="2000000" step="10000" value="50000">
+            </div>
+
+            <div class="input-group">
+                <div class="slider-header">
+                    <label for="monthlySavings">Månadssparande</label>
+                    <span class="slider-value" id="monthlySavingsVal">0 kr</span>
+                </div>
+                <input type="range" id="monthlySavings" min="100" max="10000" step="100" value="3000">
+            </div>
+
+            <div class="input-group">
+                <div class="slider-header">
+                    <label for="yieldRate">Förväntad årsavkastning</label>
+                    <span class="slider-value" id="yieldRateVal">0 %</span>
+                </div>
+                <input type="range" id="yieldRate" min="3" max="15" step="0.5" value="8">
+            </div>
+
+            <div class="input-group">
+                <div class="slider-header">
+                    <label for="horizon">Investeringshorisont</label>
+                    <span class="slider-value" id="horizonVal">0 år</span>
+                </div>
+                <input type="range" id="horizon" min="5" max="60" step="1" value="20">
+            </div>
+
+            <div class="insight-box" id="insightText">
+                Laddar insikt...
+            </div>
+        </div>
+
+        <div>
+            <div class="results-summary">
+                <div class="kpi-card">
+                    <h3>Dina insättningar</h3>
+                    <div class="value" id="kpiInvested">0 kr</div>
+                </div>
+                <div class="kpi-card interest">
+                    <h3>Ackumulerad vinst</h3>
+                    <div class="value" id="kpiInterest">0 kr</div>
+                </div>
+                <div class="kpi-card total">
+                    <h3>Totalt slutvärde</h3>
+                    <div class="value" id="kpiTotal">0 kr</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="chart-container">
+                    <canvas id="wealthChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const ctx = document.getElementById('wealthChart').getContext('2d');
+    const inputInitial = document.getElementById('initialCapital');
+    const inputMonthly = document.getElementById('monthlySavings');
+    const inputYield = document.getElementById('yieldRate');
+    const inputHorizon = document.getElementById('horizon');
+
+    const valInitial = document.getElementById('initialCapitalVal');
+    const valMonthly = document.getElementById('monthlySavingsVal');
+    const valYield = document.getElementById('yieldRateVal');
+    const valHorizon = document.getElementById('horizonVal');
+
+    const kpiInvested = document.getElementById('kpiInvested');
+    const kpiInterest = document.getElementById('kpiInterest');
+    const kpiTotal = document.getElementById('kpiTotal');
+    const insightText = document.getElementById('insightText');
+
+    let wealthChart;
+
+    function formatCurrency(val) {
+        return new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(val);
+    }
+
+    function calculateWealth() {
+        const initial = parseFloat(inputInitial.value);
+        const monthly = parseFloat(inputMonthly.value);
+        const annualRate = parseFloat(inputYield.value) / 100;
+        const years = parseInt(inputHorizon.value);
+
+        // Uppdatera texten ovanför sliders direkt
+        valInitial.innerText = formatCurrency(initial);
+        valMonthly.innerText = formatCurrency(monthly) + ' / mån';
+        valYield.innerText = inputYield.value + ' %';
+        valHorizon.innerText = years + ' år';
+
+        const monthlyRate = annualRate / 12;
+        const totalMonths = years * 12;
+
+        let labels = [];
+        let investedData = [];
+        let totalData = [];
+
+        let currentTotal = initial;
+        let currentInvested = initial;
+
+        labels.push("År 0");
+        investedData.push(currentInvested);
+        totalData.push(currentTotal);
+
+        for (let month = 1; month <= totalMonths; month++) {
+            currentTotal = (currentTotal + monthly) * (1 + monthlyRate);
+            currentInvested += monthly;
+
+            if (month % 12 === 0) {
+                const year = month / 12;
+                labels.push(`År ${year}`);
+                investedData.push(Math.round(currentInvested));
+                totalData.push(Math.round(currentTotal));
+            }
+        }
+
+        const totalEarnedInterest = currentTotal - currentInvested;
+
+        // Uppdatera KPI-kort
+        kpiInvested.innerText = formatCurrency(currentInvested);
+        kpiInterest.innerText = formatCurrency(totalEarnedInterest);
+        kpiTotal.innerText = formatCurrency(currentTotal);
+
+        // Beräkna pedagogisk multiplikator
+        const multiple = (currentTotal / currentInvested).toFixed(1);
+        insightText.innerHTML = `🌟 <strong>Ränte-på-ränta-effekten:</strong> Efter ${years} år har din förmögenhet blivit <strong>${multiple} gånger större</strong> än vad du totalt har satt in själv! Vinsten står för <strong>${Math.round((totalEarnedInterest / currentTotal) * 100)}%</strong> av hela summan.`;
+
+        // Uppdatera eller rita diagrammet
+        if (wealthChart) {
+            wealthChart.data.labels = labels;
+            wealthChart.data.datasets[0].data = investedData;
+            wealthChart.data.datasets[1].data = totalData;
+            wealthChart.update();
+        } else {
+            wealthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Dina totala insättningar',
+                            data: investedData,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: true,
+                            tension: 0.1,
+                            pointRadius: 2
+                        },
+                        {
+                            label: 'Totalt marknadsvärde (Förmögenhet)',
+                            data: totalData,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                            fill: true,
+                            tension: 0.1,
+                            pointRadius: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatCurrency(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: function(value) { return formatCurrency(value); }
+                            },
+                            grid: { color: '#f1f5f9' }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+    }
+
+    // Koppla händelselyssnare på "input" så det uppdateras direkt medan man drar i reglaget
+    [inputInitial, inputMonthly, inputYield, inputHorizon].forEach(input => {
+        input.addEventListener('input', calculateWealth);
+    });
+
+    // Kör första beräkningen direkt
+    calculateWealth();
+</script>
+
+</body>
+</html>
