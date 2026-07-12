@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Viewport Tester</title>
+    <style>
+        /* CSS Variabler för teman */
+        :root {
+            --bg-color: #f4f5f7;
+            --panel-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #cccccc;
+            --accent-color: #0066cc;
+            --zoom-factor: 1;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1e1e1e;
+            --panel-bg: #2d2d2d;
+            --text-color: #ffffff;
+            --border-color: #444444;
+            --accent-color: #4da6ff;
+        }
+
+        [data-theme="high-contrast"] {
+            --bg-color: #000000;
+            --panel-bg: #000000;
+            --text-color: #ffff00;
+            --border-color: #ffffff;
+            --accent-color: #ffff00;
+        }
+
+        /* Globala stilar */
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            zoom: var(--zoom-factor); /* Hanterar global skärmzoom */
+        }
+
+        /* Topp-panel */
+        header {
+            background-color: var(--panel-bg);
+            border-bottom: 2px solid var(--border-color);
+            padding: 10px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .url-input-container {
+            flex-grow: 1;
+            display: flex;
+            gap: 10px;
+            min-width: 300px;
+        }
+
+        input[type="url"] {
+            flex-grow: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        button {
+            padding: 8px 12px;
+            background-color: var(--accent-color);
+            color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-group {
+            display: flex;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .btn-group button {
+            border: none;
+            border-radius: 0;
+            background-color: var(--panel-bg);
+            color: var(--text-color);
+        }
+
+        .btn-group button:not(:last-child) {
+            border-right: 1px solid var(--border-color);
+        }
+
+        .btn-group button.active {
+            background-color: var(--accent-color);
+            color: var(--panel-bg);
+        }
+
+        /* Workspace och Iframes */
+        .workspace {
+            display: flex;
+            flex-grow: 1;
+            padding: 20px;
+            gap: 20px;
+            overflow-x: auto;
+            align-items: flex-start;
+        }
+
+        .viewport-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 500px;
+        }
+
+        .viewport-label {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+        }
+
+        iframe {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: #ffffff; /* Standardvit inuti iframes för att inte sabba sajten som testas */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            flex-grow: 1;
+            height: calc(100vh - 140px);
+        }
+
+        /* Viewport-specifika bredder */
+        .mobile { width: 375px; }
+        .tablet { width: 768px; }
+        .desktop { width: 100%; flex-grow: 1; min-width: 1024px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="url-input-container">
+            <input type="url" id="urlInput" placeholder="Ange URL (t.ex. https://example.com)" value="https://example.com">
+            <button onclick="updateIframes()">Ladda</button>
+        </div>
+
+        <div class="controls">
+            <!-- Tema-väljare -->
+            <div class="btn-group">
+                <button id="btn-light" class="active" onclick="setTheme('light')">Ljus</button>
+                <button id="btn-dark" onclick="setTheme('dark')">Mörk</button>
+                <button id="btn-contrast" onclick="setTheme('high-contrast')">Högkontrast</button>
+            </div>
+
+            <!-- Zoom-kontroller -->
+            <div class="btn-group">
+                <button onclick="changeZoom(-0.1)">A-</button>
+                <button onclick="changeZoom(0)">100%</button>
+                <button onclick="changeZoom(0.1)">A+</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="workspace">
+        <!-- Mobil -->
+        <div class="viewport-wrapper mobile">
+            <div class="viewport-label">Mobil (375px)</div>
+            <iframe id="iframeMobile" src="https://example.com"></iframe>
+        </div>
+
+        <!-- Sida vid sida: Tablet -->
+        <div class="viewport-wrapper tablet">
+            <div class="viewport-label">Surfplatta (768px)</div>
+            <iframe id="iframeTablet" src="https://example.com"></iframe>
+        </div>
+
+        <!-- Sida vid sida: Desktop -->
+        <div class="viewport-wrapper desktop">
+            <div class="viewport-label">Desktop (Flexibel)</div>
+            <iframe id="iframeDesktop" src="https://example.com"></iframe>
+        </div>
+    </div>
+
+    <script>
+        // Funktion för att uppdatera alla iframes
+        function updateIframes() {
+            let url = document.getElementById('urlInput').value.trim();
+            
+            // Lägg till https:// om användaren glömde det
+            if (url && !/^https?:\/\//i.test(url)) {
+                url = 'https://' + url;
+                document.getElementById('urlInput').value = url;
+            }
+
+            if(url) {
+                document.getElementById('iframeMobile').src = url;
+                document.getElementById('iframeTablet').src = url;
+                document.getElementById('iframeDesktop').src = url;
+            }
+        }
+
+        // Lyssna på Enter-tryck i inputfältet
+        document.getElementById('urlInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                updateIframes();
+            }
+        });
+
+        // Funktion för att byta tema på grundstrukturen
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            
+            // Hantera aktiv klass på knapparna
+            document.getElementById('btn-light').classList.remove('active');
+            document.getElementById('btn-dark').classList.remove('active');
+            document.getElementById('btn-contrast').classList.remove('active');
+            
+            if (theme === 'light') document.getElementById('btn-light').classList.add('active');
+            if (theme === 'dark') document.getElementById('btn-dark').classList.add('active');
+            if (theme === 'high-contrast') document.getElementById('btn-contrast').classList.add('active');
+        }
+
+        // Funktion för global skärmzoom
+        let currentZoom = 1;
+        function changeZoom(delta) {
+            if (delta === 0) {
+                currentZoom = 1;
+            } else {
+                currentZoom = Math.min(Math.max(currentZoom + delta, 0.7), 1.5); // Spärr mellan 70% och 150%
+            }
+            document.documentElement.style.setProperty('--zoom-factor', currentZoom);
+        }
+    </script>
+</body>
+</html>
