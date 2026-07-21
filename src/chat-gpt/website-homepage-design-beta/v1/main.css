@@ -1,0 +1,39 @@
+body {
+    text-rendering: optimizeLegibility;
+    text-align: center;
+}
+
+img {
+    pointer-events: none; /* Removes Microsoft Edge - Bing search on images */
+}
+
+a, a:active, a:visited {
+    color: #0057e2;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #fff;
+}
+
+.icon {
+    fill: #0057e2;
+}
+
+.icon:hover {
+    fill: #fff;
+}
+
+#tagline {
+    font-size: 2rem;
+    margin: 0;
+}
+
+h2 {
+    font-size: 1.5rem;
+}
+
+#helpline {
+    font-weight: bold;
+    font-size: 1rem;
+}
