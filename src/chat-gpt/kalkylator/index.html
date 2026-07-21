@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Kalkylatorer - Översikt</title>
+	<style>
+		:root {
+			--bg: #f3f6f9;
+			--surface: #ffffff;
+			--text: #1f2937;
+			--muted: #5f6f82;
+			--line: #d7e0e8;
+			--accent: #0f766e;
+			--accent-soft: #e6fffb;
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+			background:
+				radial-gradient(circle at 20% 0%, #ffffff 0%, transparent 35%),
+				linear-gradient(180deg, #eef4f8 0%, var(--bg) 100%);
+			color: var(--text);
+			min-height: 100vh;
+			padding: 28px 16px;
+		}
+
+		.container {
+			max-width: 880px;
+			margin: 0 auto;
+			background: var(--surface);
+			border: 1px solid var(--line);
+			border-radius: 14px;
+			box-shadow: 0 14px 35px rgba(17, 24, 39, 0.08);
+			overflow: hidden;
+		}
+
+		.header {
+			padding: 24px;
+			border-bottom: 1px solid var(--line);
+			background: linear-gradient(135deg, #f5fffc 0%, #ffffff 55%);
+		}
+
+		h1 {
+			margin: 0;
+			font-size: clamp(1.4rem, 2.8vw, 2rem);
+			letter-spacing: 0.2px;
+		}
+
+		.lead {
+			margin: 8px 0 0;
+			color: var(--muted);
+			line-height: 1.5;
+		}
+
+		.content {
+			padding: 18px 24px 24px;
+		}
+
+		.meta {
+			margin: 0 0 16px;
+			color: var(--muted);
+			font-size: 0.95rem;
+		}
+
+		.folder-list {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+			display: grid;
+			gap: 10px;
+		}
+
+		.folder-item {
+			border: 1px solid var(--line);
+			border-radius: 10px;
+			padding: 12px 14px;
+			display: flex;
+			justify-content: space-between;
+			gap: 12px;
+			align-items: center;
+			background: #fff;
+		}
+
+		.folder-name {
+			font-weight: 600;
+			letter-spacing: 0.1px;
+			word-break: break-word;
+		}
+
+		.folder-path {
+			color: var(--muted);
+			font-size: 0.86rem;
+			margin-top: 3px;
+			word-break: break-all;
+		}
+
+		.open-link {
+			flex-shrink: 0;
+			text-decoration: none;
+			color: var(--accent);
+			font-weight: 700;
+			border: 1px solid #b8e8e1;
+			background: var(--accent-soft);
+			padding: 8px 11px;
+			border-radius: 8px;
+			transition: transform 0.15s ease, background-color 0.15s ease;
+		}
+
+		.open-link:hover,
+		.open-link:focus-visible {
+			background: #d8faf4;
+			transform: translateY(-1px);
+			outline: none;
+		}
+
+		@media (max-width: 700px) {
+			.header,
+			.content {
+				padding-left: 14px;
+				padding-right: 14px;
+			}
+
+			.folder-item {
+				flex-direction: column;
+				align-items: flex-start;
+			}
+		}
+	</style>
+</head>
+<body>
+	<main class="container">
+		<section class="header">
+			<h1>Alla kalkylator-sidor</h1>
+			<p class="lead">Automatisk översikt av undermapparnas index-sidor i denna mapp.</p>
+		</section>
+
+		<section class="content">
+			<p id="meta" class="meta"></p>
+			<ul id="folderList" class="folder-list"></ul>
+		</section>
+	</main>
+
+	<script>
+		const indexPaths = [
+			"amortering-vs-investering/v1/index.html",
+			"amortering-vs-investering/v2/index.html",
+			"amortering-vs-investering/v3/index.html",
+			"bil/v1/index.html",
+			"bil/v2/index.html",
+			"bil/v3/index.html",
+			"bolan-invest-summary/index.html",
+			"ekonomi-visualisering/index.html",
+			"lan/v1/index.html",
+			"lan/v2/index.html"
+		];
+
+		const listEl = document.getElementById("folderList");
+		const metaEl = document.getElementById("meta");
+
+		function folderLabel(path) {
+			return path.replace(/\/index\.html$/i, "");
+		}
+
+		function toFolderHref(path) {
+			return "./" + path.replace(/index\.html$/i, "");
+		}
+
+		function renderLinks(paths) {
+			const sorted = [...paths].sort((a, b) => a.localeCompare(b, "sv"));
+
+			metaEl.textContent = sorted.length + " undersidor hittades.";
+
+			const fragment = document.createDocumentFragment();
+
+			sorted.forEach((path) => {
+				const li = document.createElement("li");
+				li.className = "folder-item";
+
+				const textWrap = document.createElement("div");
+				const name = document.createElement("div");
+				const rawPath = document.createElement("div");
+
+				name.className = "folder-name";
+				name.textContent = folderLabel(path);
+
+				rawPath.className = "folder-path";
+				rawPath.textContent = path;
+
+				textWrap.appendChild(name);
+				textWrap.appendChild(rawPath);
+
+				const link = document.createElement("a");
+				link.className = "open-link";
+				link.href = toFolderHref(path);
+				link.textContent = "Öppna";
+
+				li.appendChild(textWrap);
+				li.appendChild(link);
+				fragment.appendChild(li);
+			});
+
+			listEl.appendChild(fragment);
+		}
+
+		renderLinks(indexPaths);
+	</script>
+</body>
+</html>
