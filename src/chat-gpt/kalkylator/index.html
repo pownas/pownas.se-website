@@ -68,6 +68,12 @@
 			font-size: 0.95rem;
 		}
 
+		.updated {
+			margin: -8px 0 16px;
+			color: var(--muted);
+			font-size: 0.85rem;
+		}
+
 		.folder-list {
 			list-style: none;
 			margin: 0;
@@ -142,6 +148,7 @@
 
 		<section class="content">
 			<p id="meta" class="meta"></p>
+			<p id="updatedAt" class="updated">Senast uppdaterad: 2026-07-21 10:08 (laddar...)</p>
 			<ul id="folderList" class="folder-list"></ul>
 		</section>
 	</main>
@@ -162,6 +169,7 @@
 
 		const listEl = document.getElementById("folderList");
 		const metaEl = document.getElementById("meta");
+		const updatedEl = document.getElementById("updatedAt");
 
 		function folderLabel(path) {
 			return path.replace(/\/index\.html$/i, "");
@@ -208,7 +216,50 @@
 			listEl.appendChild(fragment);
 		}
 
+		function formatDateForSv(dateValue) {
+			const date = new Date(dateValue);
+
+			if (Number.isNaN(date.getTime())) {
+				return null;
+			}
+
+			return new Intl.DateTimeFormat("sv-SE", {
+				year: "numeric",
+				month: "2-digit",
+				day: "2-digit",
+				hour: "2-digit",
+				minute: "2-digit"
+			}).format(date);
+		}
+
+		async function renderLastUpdated() {
+			let sourceValue = "";
+
+			try {
+				const response = await fetch(window.location.href, {
+					method: "HEAD",
+					cache: "no-store"
+				});
+
+				if (response.ok) {
+					sourceValue = response.headers.get("last-modified") || "";
+				}
+			} catch (error) {
+				// Some static setups block HEAD/CORS; fallback below handles this.
+			}
+
+			if (!sourceValue) {
+				sourceValue = document.lastModified || "";
+			}
+
+			const formatted = formatDateForSv(sourceValue);
+			updatedEl.textContent = formatted
+				? "Senast uppdaterad: " + formatted
+				: "Senast uppdaterad: okand";
+		}
+
 		renderLinks(indexPaths);
+		renderLastUpdated();
 	</script>
 </body>
 </html>
