@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="sv" class="h-full bg-slate-50 dark:bg-slate-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ränta-på-ränta & Bostadskalkylator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        },
+                        house: {
+                            50: '#f5f3ff',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #16a34a;
+            cursor: pointer;
+            transition: background .15s ease-in-out;
+        }
+        .house-theme input[type="range"]::-webkit-slider-thumb {
+            background: #8b5cf6;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border: 0;
+            border-radius: 50%;
+            background: #16a34a;
+            cursor: pointer;
+            transition: background .15s ease-in-out;
+        }
+        .house-theme input[type="range"]::-moz-range-thumb {
+            background: #8b5cf6;
+        }
+    </style>
+</head>
+<body class="h-full text-slate-800 dark:text-slate-100 flex flex-col justify-between transition-colors duration-200">
+
+    <!-- Header -->
+    <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div id="logoContainer" class="bg-brand-500 text-white p-2 rounded-lg shadow-md transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Ekonomistudion</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Ränta-på-ränta & Bostadshävstång</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <!-- Temaväljare -->
+                <button id="themeToggle" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors" aria-label="Växla mörkt läge">
+                    <svg id="sunIcon" class="h-5 w-5 text-amber-500 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <svg id="moonIcon" class="h-5 w-5 text-slate-600 dark:text-slate-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation Tabs -->
+    <div class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="flex space-x-8" aria-label="Tabs">
+                <button id="tabModeStandard" class="border-brand-500 text-brand-600 dark:text-emerald-400 border-b-2 py-4 px-1 text-sm font-medium transition-all flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Klassiskt Sparande</span>
+                </button>
+                <button id="tabModeHouse" class="border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 border-b-2 py-4 px-1 text-sm font-medium transition-all flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <span>Bostadsinvestering & Hävstång</span>
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Left Side: Controls/Inputs -->
+            <section id="sidebarContainer" class="lg:col-span-5 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 space-y-6">
+                <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-3">
+                    <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Inställningar</h2>
+                    <span id="badgeMode" class="bg-brand-100 text-brand-800 dark:bg-emerald-900/30 dark:text-emerald-300 text-xs font-semibold px-2.5 py-0.5 rounded-full">Klassisk</span>
+                </div>
+
+                <!-- Basparametrar (Alltid synliga) -->
+                <div class="space-y-6">
+                    <!-- Startbelopp / Likvida medel -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label for="initialDepositInput" class="text-sm font-medium text-slate-600 dark:text-slate-300">Startbelopp sparande (kr)</label>
+                            <input type="number" id="initialDepositInput" value="200000" min="0" max="10000000" step="5000" class="w-28 text-right bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md py-1 px-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <input type="range" id="initialDepositSlider" min="0" max="1000000" step="10000" value="200000" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Månadssparande -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label for="monthlyContributionInput" class="text-sm font-medium text-slate-600 dark:text-slate-300">Månadsinsättning (kr)</label>
+                            <input type="number" id="monthlyContributionInput" value="1000" min="0" max="100000" step="100" class="w-28 text-right bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md py-1 px-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <input type="range" id="monthlyContributionSlider" min="0" max="25000" step="250" value="1000" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Förväntad sparränta -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label for="interestRateInput" class="text-sm font-medium text-slate-600 dark:text-slate-300">Förväntad årsränta sparande (%)</label>
+                            <input type="number" id="interestRateInput" value="2.0" min="0" max="30" step="0.1" class="w-20 text-right bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md py-1 px-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <input type="range" id="interestRateSlider" min="0" max="20" step="0.1" value="2.0" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Inflation -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label for="inflationInput" class="text-sm font-medium text-slate-600 dark:text-slate-300">Årlig Inflation (%)</label>
+                            <input type="number" id="inflationInput" value="1.9" min="0" max="15" step="0.1" class="w-20 text-right bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md py-1 px-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <input type="range" id="inflationSlider" min="0" max="10" step="0.1" value="1.9" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Sparhorisont (År) -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label for="yearsInput" class="text-sm font-medium text-slate-600 dark:text-slate-300">Tidshorisont (år)</label>
+                            <input type="number" id="yearsInput" value="20" min="1" max="50" step="1" class="w-20 text-right bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md py-1 px-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <input type="range" id="yearsSlider" min="1" max="50" step="1" value="20" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                </div>
+
+                <!-- BOSTADSSPECIFIKA PARAMETRAR (Visas endast i Bostads-läget) -->
+                <div id="houseSection" class="hidden border-t border-slate-200 dark:border-slate-700 pt-6 space-y-6">
+                    <h3 class="text-md font-bold text-violet-600 dark:text-violet-400 flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Bostad- & Låneinställningar</span>
+                    </h3>
+
+                    <!-- Husets nuvarande värde -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label for="houseValueInput" class="text-sm font-medium text-slate-600 dark:text-slate-300">Bostadens startvärde (kr)</label>
+                            <input type="number" id="houseValueInput" value="3000000" min="500000" max="25000000" step="100000" class="w-28 text-right bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md py-1 px-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500">
+                        </div>
+                        <input type="range" id="houseValueSlider" min="500000" max="10000000" step="100000" value="3000000" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Lån för renovering -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label for="loanAmountInput" class="text-sm font-medium text-slate-600 dark:text-slate-300">Nytt Renoveringslån (kr)</label>
+                            <input type="number" id="loanAmountInput" value="200000" min="0" max="2000000" step="10000" class="w-28 text-right bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md py-1 px-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500">
+                        </div>
+                        <input type="range" id="loanAmountSlider" min="0" max="1000000" step="10000" value="200000" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Direkt värdeökning av renovering -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label for="renoBoostInput" class="text-sm font-medium text-slate-600 dark:text-slate-300">Direkt värdeökning på huset (kr)</label>
+                            <input type="number" id="renoBoostInput" value="250000" min="0" max="3000000" step="10000" class="w-28 text-right bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md py-1 px-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500">
+                        </div>
+                        <input type="range" id="renoBoostSlider" min="0" max="1500000" step="10000" value="250000" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                        <div class="text-xs text-violet-500 dark:text-violet-400 font-medium flex justify-between">
+                            <span id="renoEfficiency">Effekt: 125% av lånebeloppet</span>
+                        </div>
+                    </div>
+
+                    <!-- Låneränta -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label for="loanInterestInput" class="text-sm font-medium text-slate-600 dark:text-slate-300">Låneränta (bostadslån) (%)</label>
+                            <input type="number" id="loanInterestInput" value="4.0" min="0" max="15" step="0.1" class="w-20 text-right bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md py-1 px-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500">
+                        </div>
+                        <input type="range" id="loanInterestSlider" min="0" max="10" step="0.1" value="4.0" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Årlig generell prisökning på bostäder -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label for="houseAppreciationInput" class="text-sm font-medium text-slate-600 dark:text-slate-300">Årlig marknadsökning bostad (%)</label>
+                            <input type="number" id="houseAppreciationInput" value="3.0" min="-5" max="15" step="0.1" class="w-20 text-right bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md py-1 px-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500">
+                        </div>
+                        <input type="range" id="houseAppreciationSlider" min="-5" max="10" step="0.1" value="3.0" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Månadsamortering på det nya lånet -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label for="amortizationInput" class="text-sm font-medium text-slate-600 dark:text-slate-300">Månadsamortering (kr)</label>
+                            <input type="number" id="amortizationInput" value="1000" min="0" max="20000" step="100" class="w-28 text-right bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md py-1 px-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500">
+                        </div>
+                        <input type="range" id="amortizationSlider" min="0" max="10000" step="100" value="1000" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Side: Dashboard/Results -->
+            <section class="lg:col-span-7 space-y-6">
+                
+                <!-- standard RESULT CARDS (Active when standard tab is active) -->
+                <div id="standardResultsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                        <div class="text-sm font-medium text-slate-500 dark:text-slate-400">Framtida saldo (Nominellt)</div>
+                        <div id="finalNominalValue" class="text-2xl font-bold text-slate-900 dark:text-white mt-1">0 kr</div>
+                        <p class="text-xs text-slate-400 mt-2">Ditt faktiska sparkapital efter angiven tid.</p>
+                    </div>
+                    <div class="bg-brand-50 dark:bg-emerald-950/20 p-5 rounded-2xl shadow-sm border border-brand-100 dark:border-emerald-900/30">
+                        <div class="text-sm font-medium text-brand-700 dark:text-emerald-400">Framtida köpkraft (Realt)</div>
+                        <div id="finalRealValue" class="text-2xl font-bold text-brand-600 dark:text-emerald-300 mt-1">0 kr</div>
+                        <p class="text-xs text-brand-700/60 dark:text-emerald-400/60 mt-2">Justerat för angiven inflation.</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                        <div class="text-sm font-medium text-slate-500 dark:text-slate-400">Totalt insatt belopp</div>
+                        <div id="totalInvestedValue" class="text-lg font-bold text-slate-700 dark:text-slate-300 mt-1">0 kr</div>
+                        <p class="text-xs text-slate-400 mt-1">Ditt eget kapital som du sparat.</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                        <div class="text-sm font-medium text-slate-500 dark:text-slate-400">Totalt intjänad ränta</div>
+                        <div id="totalInterestValue" class="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-1">0 kr</div>
+                        <p class="text-xs text-slate-400 mt-1">Förtjänad avkastning (före skatt).</p>
+                    </div>
+                </div>
+
+                <!-- HOUSE/LEVERAGE RESULT CARDS (Active when house tab is active) -->
+                <div id="houseResultsGrid" class="hidden space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Scenario A -->
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">A: Låna & Renovera</div>
+                            <div id="netWorthA" class="text-xl font-bold text-violet-600 dark:text-violet-400 mt-1">0 kr</div>
+                            <p class="text-[11px] text-slate-400 mt-2">Nettotillgångar (Husets slutvärde - kvarvarande lån + ditt sidobosparande).</p>
+                        </div>
+                        <!-- Scenario B -->
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">B: Undvik lån (Bara spara)</div>
+                            <div id="netWorthB" class="text-xl font-bold text-slate-600 dark:text-slate-300 mt-1">0 kr</div>
+                            <p class="text-[11px] text-slate-400 mt-2">Nettotillgångar (Husets grundvärde + större sparande från räntebesparingar).</p>
+                        </div>
+                        <!-- Skillnaden -->
+                        <div id="winnerCard" class="p-5 rounded-2xl shadow-sm border flex flex-col justify-between">
+                            <div>
+                                <div class="text-xs font-bold uppercase tracking-wider" id="winnerLabel">Ekonomisk Vinnare</div>
+                                <div id="netWorthDiff" class="text-2xl font-black mt-1">0 kr</div>
+                            </div>
+                            <p id="winnerSubtext" class="text-[11px] mt-2">Laddar...</p>
+                        </div>
+                    </div>
+
+                    <!-- Pedagogisk textanalys om hävstången -->
+                    <div class="bg-violet-50 dark:bg-violet-950/20 border border-violet-100 dark:border-violet-900/40 p-4 rounded-xl text-xs space-y-2">
+                        <h4 class="font-bold text-violet-800 dark:text-violet-300 flex items-center space-x-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Hur fungerar hävstångskalkylen?</span>
+                        </h4>
+                        <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
+                            För att jämförelsen ska bli rättvis tvingas båda alternativen att kosta dig **exakt lika mycket pengar** varje månad. 
+                            I **Scenario A** betalar du ränta och amortering på lånet. I **Scenario B** har du inget lån, så du investerar istället motsvarande summan av ränte- och amorteringsbetalningarna direkt i din ränte-på-ränta-portfölj. 
+                            Kalkylen visar om din direktvärdeökning ($+ \text{renoveringslyftet}$) samt hävstången på fastighetsmarknaden slår räntekostnaderna och ränte-på-ränta-effekten av att spara pengarna direkt.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Main Chart & Data View -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    <div class="flex border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                        <button id="tabChart" class="flex-1 py-3 px-4 text-sm font-semibold border-b-2 border-brand-500 text-brand-600 dark:text-emerald-400 focus:outline-none transition-all">
+                            Visualiserat diagram
+                        </button>
+                        <button id="tabTable" class="flex-1 py-3 px-4 text-sm font-medium border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 hover:border-slate-300 focus:outline-none transition-all">
+                            Årlig data
+                        </button>
+                    </div>
+
+                    <!-- Chart View -->
+                    <div id="chartView" class="p-6">
+                        <div class="relative w-full h-80 md:h-96">
+                            <canvas id="growthChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Table View -->
+                    <div id="tableView" class="hidden max-h-[400px] overflow-y-auto p-4">
+                        <table class="w-full text-left text-xs sm:text-sm border-collapse">
+                            <thead id="tableHead">
+                                <!-- Genereras dynamiskt baserat på valt läge -->
+                            </thead>
+                            <tbody id="breakdownTableBody" class="divide-y divide-slate-100 dark:divide-slate-700/50">
+                                <!-- Genereras dynamiskt via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 mt-12 py-6 text-center text-xs text-slate-400 dark:text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>© 2026 Ekonomistudion. Framtida prognoser är uppskattningar baserade på angivna räntesatser och är ej finansiell rådgivning.</p>
+        </div>
+    </footer>
+
+    <!-- App Logic -->
+    <script>
+        // DOM Elements
+        const initialDepositInput = document.getElementById('initialDepositInput');
+        const initialDepositSlider = document.getElementById('initialDepositSlider');
+        const monthlyContributionInput = document.getElementById('monthlyContributionInput');
+        const monthlyContributionSlider = document.getElementById('monthlyContributionSlider');
+        const interestRateInput = document.getElementById('interestRateInput');
+        const interestRateSlider = document.getElementById('interestRateSlider');
+        const inflationInput = document.getElementById('inflationInput');
+        const inflationSlider = document.getElementById('inflationSlider');
+        const yearsInput = document.getElementById('yearsInput');
+        const yearsSlider = document.getElementById('yearsSlider');
+
+        // House specific DOM
+        const houseSection = document.getElementById('houseSection');
+        const houseValueInput = document.getElementById('houseValueInput');
+        const houseValueSlider = document.getElementById('houseValueSlider');
+        const loanAmountInput = document.getElementById('loanAmountInput');
+        const loanAmountSlider = document.getElementById('loanAmountSlider');
+        const renoBoostInput = document.getElementById('renoBoostInput');
+        const renoBoostSlider = document.getElementById('renoBoostSlider');
+        const loanInterestInput = document.getElementById('loanInterestInput');
+        const loanInterestSlider = document.getElementById('loanInterestSlider');
+        const houseAppreciationInput = document.getElementById('houseAppreciationInput');
+        const houseAppreciationSlider = document.getElementById('houseAppreciationSlider');
+        const amortizationInput = document.getElementById('amortizationInput');
+        const amortizationSlider = document.getElementById('amortizationSlider');
+        const renoEfficiency = document.getElementById('renoEfficiency');
+
+        // Results Standard
+        const standardResultsGrid = document.getElementById('standardResultsGrid');
+        const finalNominalValue = document.getElementById('finalNominalValue');
+        const finalRealValue = document.getElementById('finalRealValue');
+        const totalInvestedValue = document.getElementById('totalInvestedValue');
+        const totalInterestValue = document.getElementById('totalInterestValue');
+
+        // Results House
+        const houseResultsGrid = document.getElementById('houseResultsGrid');
+        const netWorthA = document.getElementById('netWorthA');
+        const netWorthB = document.getElementById('netWorthB');
+        const netWorthDiff = document.getElementById('netWorthDiff');
+        const winnerCard = document.getElementById('winnerCard');
+        const winnerLabel = document.getElementById('winnerLabel');
+        const winnerSubtext = document.getElementById('winnerSubtext');
+
+        // Interface controls
+        const tabModeStandard = document.getElementById('tabModeStandard');
+        const tabModeHouse = document.getElementById('tabModeHouse');
+        const sidebarContainer = document.getElementById('sidebarContainer');
+        const logoContainer = document.getElementById('logoContainer');
+        const badgeMode = document.getElementById('badgeMode');
+        
+        const tabChart = document.getElementById('tabChart');
+        const tabTable = document.getElementById('tabTable');
+        const chartView = document.getElementById('chartView');
+        const tableView = document.getElementById('tableView');
+        const tableHead = document.getElementById('tableHead');
+        const breakdownTableBody = document.getElementById('breakdownTableBody');
+        const themeToggle = document.getElementById('themeToggle');
+
+        let currentMode = 'standard'; // 'standard' eller 'house'
+        let myChart = null;
+
+        // Theme initialization
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('sunIcon').classList.remove('hidden');
+            document.getElementById('moonIcon').classList.add('hidden');
+        } else {
+            document.documentElement.classList.remove('dark');
+            document.getElementById('sunIcon').classList.add('hidden');
+            document.getElementById('moonIcon').classList.remove('hidden');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.theme = isDark ? 'dark' : 'light';
+            document.getElementById('sunIcon').classList.toggle('hidden', !isDark);
+            document.getElementById('moonIcon').classList.toggle('hidden', isDark);
+            updateChartTheme();
+        });
+
+        // Set up synchronization between Slider and Input
+        function setupSync(input, slider, precision = 0) {
+            input.addEventListener('input', () => {
+                let val = parseFloat(input.value) || 0;
+                if (val > parseFloat(slider.max)) {
+                    slider.max = val * 1.5;
+                }
+                slider.value = val;
+                runCalculation();
+            });
+            slider.addEventListener('input', () => {
+                input.value = parseFloat(slider.value).toFixed(precision);
+                runCalculation();
+            });
+        }
+
+        setupSync(initialDepositInput, initialDepositSlider, 0);
+        setupSync(monthlyContributionInput, monthlyContributionSlider, 0);
+        setupSync(interestRateInput, interestRateSlider, 1);
+        setupSync(inflationInput, inflationSlider, 1);
+        setupSync(yearsInput, yearsSlider, 0);
+
+        // House inputs sync
+        setupSync(houseValueInput, houseValueSlider, 0);
+        setupSync(loanAmountInput, loanAmountSlider, 0);
+        setupSync(renoBoostInput, renoBoostSlider, 0);
+        setupSync(loanInterestInput, loanInterestSlider, 1);
+        setupSync(houseAppreciationInput, houseAppreciationSlider, 1);
+        setupSync(amortizationInput, amortizationSlider, 0);
+
+        // Helper: Format to SEK
+        function formatSEK(val) {
+            return Math.round(val).toLocaleString('sv-SE') + ' kr';
+        }
+
+        // Switch Tabs Mode
+        tabModeStandard.addEventListener('click', () => {
+            currentMode = 'standard';
+            
+            // UI Toggle
+            tabModeStandard.className = "border-brand-500 text-brand-600 dark:text-emerald-400 border-b-2 py-4 px-1 text-sm font-medium transition-all flex items-center space-x-2";
+            tabModeHouse.className = "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 border-b-2 py-4 px-1 text-sm font-medium transition-all flex items-center space-x-2";
+            
+            sidebarContainer.classList.remove('house-theme');
+            logoContainer.className = "bg-brand-500 text-white p-2 rounded-lg shadow-md transition-colors";
+            badgeMode.textContent = "Klassisk";
+            badgeMode.className = "bg-brand-100 text-brand-800 dark:bg-emerald-900/30 dark:text-emerald-300 text-xs font-semibold px-2.5 py-0.5 rounded-full";
+
+            houseSection.classList.add('hidden');
+            standardResultsGrid.classList.remove('hidden');
+            houseResultsGrid.classList.add('hidden');
+
+            // Force destroy chart to redraw with new datasets
+            if (myChart) {
+                myChart.destroy();
+                myChart = null;
+            }
+
+            runCalculation();
+        });
+
+        tabModeHouse.addEventListener('click', () => {
+            currentMode = 'house';
+            
+            // UI Toggle
+            tabModeHouse.className = "border-violet-500 text-violet-600 dark:text-violet-400 border-b-2 py-4 px-1 text-sm font-medium transition-all flex items-center space-x-2";
+            tabModeStandard.className = "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 border-b-2 py-4 px-1 text-sm font-medium transition-all flex items-center space-x-2";
+            
+            sidebarContainer.classList.add('house-theme');
+            logoContainer.className = "bg-violet-500 text-white p-2 rounded-lg shadow-md transition-colors";
+            badgeMode.textContent = "Hävstångskalkyl";
+            badgeMode.className = "bg-violet-100 text-violet-800 dark:bg-violet-950/40 dark:text-violet-300 text-xs font-semibold px-2.5 py-0.5 rounded-full";
+
+            houseSection.classList.remove('hidden');
+            standardResultsGrid.classList.add('hidden');
+            houseResultsGrid.classList.remove('hidden');
+
+            if (myChart) {
+                myChart.destroy();
+                myChart = null;
+            }
+
+            runCalculation();
+        });
+
+        // Toggle Visual Graph vs Table views
+        tabChart.addEventListener('click', () => {
+            tabChart.className = "flex-1 py-3 px-4 text-sm font-semibold border-b-2 border-brand-500 text-brand-600 dark:text-emerald-400 focus:outline-none transition-all";
+            tabTable.className = "flex-1 py-3 px-4 text-sm font-medium border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 hover:border-slate-300 focus:outline-none transition-all";
+            chartView.classList.remove('hidden');
+            tableView.classList.add('hidden');
+        });
+
+        tabTable.addEventListener('click', () => {
+            tabTable.className = "flex-1 py-3 px-4 text-sm font-semibold border-b-2 border-brand-500 text-brand-600 dark:text-emerald-400 focus:outline-none transition-all";
+            tabChart.className = "flex-1 py-3 px-4 text-sm font-medium border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 hover:border-slate-300 focus:outline-none transition-all";
+            tableView.classList.remove('hidden');
+            chartView.classList.add('hidden');
+        });
+
+        // Primary calculation hub
+        function runCalculation() {
+            if (currentMode === 'standard') {
+                calculateStandard();
+            } else {
+                calculateHouseLeverage();
+            }
+        }
+
+        // 1. Classical Savings Compound Interest Calculation
+        function calculateStandard() {
+            const P = parseFloat(initialDepositInput.value) || 0;
+            const PMT = parseFloat(monthlyContributionInput.value) || 0;
+            const annualRate = (parseFloat(interestRateInput.value) || 0) / 100;
+            const inflationRate = (parseFloat(inflationInput.value) || 0) / 100;
+            const N = parseInt(yearsInput.value) || 1;
+
+            const r_m = annualRate / 12;
+
+            let currentNominal = P;
+            let currentReal = P;
+            let totalInvested = P;
+
+            const chartLabels = ['Start'];
+            const nominalData = [P];
+            const realData = [P];
+            const investedData = [P];
+
+            tableHead.innerHTML = `
+                <tr class="text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
+                    <th class="py-2 px-3 text-center">År</th>
+                    <th class="py-2 px-3 text-right">Eget sparande</th>
+                    <th class="py-2 px-3 text-right">Slutbelopp (Nom.)</th>
+                    <th class="py-2 px-3 text-right">Köpkraft (Real)</th>
+                </tr>
+            `;
+            breakdownTableBody.innerHTML = '';
+
+            for (let year = 1; year <= N; year++) {
+                for (let m = 1; m <= 12; m++) {
+                    currentNominal = currentNominal * (1 + r_m) + PMT;
+                    totalInvested += PMT;
+                }
+                currentReal = currentNominal / Math.pow(1 + inflationRate, year);
+
+                chartLabels.push(`År ${year}`);
+                nominalData.push(Math.round(currentNominal));
+                realData.push(Math.round(currentReal));
+                investedData.push(Math.round(totalInvested));
+
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-50 dark:hover:bg-slate-800/30";
+                row.innerHTML = `
+                    <td class="py-2 px-3 text-center font-medium">${year}</td>
+                    <td class="py-2 px-3 text-right text-slate-500">${formatSEK(totalInvested)}</td>
+                    <td class="py-2 px-3 text-right font-semibold text-slate-900 dark:text-white">${formatSEK(currentNominal)}</td>
+                    <td class="py-2 px-3 text-right font-semibold text-brand-600 dark:text-emerald-300">${formatSEK(currentReal)}</td>
+                `;
+                breakdownTableBody.appendChild(row);
+            }
+
+            finalNominalValue.textContent = formatSEK(currentNominal);
+            finalRealValue.textContent = formatSEK(currentReal);
+            totalInvestedValue.textContent = formatSEK(totalInvested);
+            
+            const totalRanta = currentNominal - totalInvested;
+            totalInterestValue.textContent = totalRanta > 0 ? formatSEK(totalRanta) : '0 kr';
+
+            renderStandardChart(chartLabels, nominalData, realData, investedData);
+        }
+
+        // 2. Advanced Housing and Leverage Calculation
+        function calculateHouseLeverage() {
+            const P = parseFloat(initialDepositInput.value) || 0; // Likvida startmedel
+            const PMT = parseFloat(monthlyContributionInput.value) || 0; // Basmånadssparande
+            const r_savings = (parseFloat(interestRateInput.value) || 0) / 100 / 12; // Månadsvis sparränta
+            const inflationRate = (parseFloat(inflationInput.value) || 0) / 100;
+            const N = parseInt(yearsInput.value) || 1;
+
+            // Bostadsspecifika variabler
+            const house_start = parseFloat(houseValueInput.value) || 0;
+            const loan_amount = parseFloat(loanAmountInput.value) || 0;
+            const reno_boost = parseFloat(renoBoostInput.value) || 0;
+            const r_loan = (parseFloat(loanInterestInput.value) || 0) / 100 / 12; // Månadsvis låneränta
+            const g_house = (parseFloat(houseAppreciationInput.value) || 0) / 100 / 12; // Månadsvis husprisökning
+            const monthly_amort = parseFloat(amortizationInput.value) || 0;
+
+            // Räkna ut renoveringseffektivitet i procent av lånebelopp
+            if (loan_amount > 0) {
+                const efficiency = (reno_boost / loan_amount) * 100;
+                renoEfficiency.textContent = `Effekt: ${Math.round(efficiency)}% av lånebeloppet`;
+            } else {
+                renoEfficiency.textContent = 'Låna först för att se effektivitet';
+            }
+
+            // Loop-variabler
+            // SCENARIO A: Låna & Renovera
+            let houseA = house_start + reno_boost; // Direkt ökning tack vare renovering
+            let loanA = loan_amount;
+            let savingsA = P; // Behåller startkapitalet i räntebärande sparande
+
+            // SCENARIO B: Spara istället (inget lån, ingen renovering)
+            let houseB = house_start; // Ingen direkt värdeökning
+            let savingsB = P;
+
+            const chartLabels = ['Start'];
+            const netWorthDataA = [houseA - loanA + savingsA];
+            const netWorthDataB = [houseB + savingsB];
+            const realNetWorthDataA = [houseA - loanA + savingsA];
+
+            tableHead.innerHTML = `
+                <tr class="text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
+                    <th class="py-2 px-3 text-center">År</th>
+                    <th class="py-2 px-3 text-right">A: Husvärde</th>
+                    <th class="py-2 px-3 text-right">A: Skuld</th>
+                    <th class="py-2 px-3 text-right">A: Nettotillgång</th>
+                    <th class="py-2 px-3 text-right">B: Nettotillgång</th>
+                </tr>
+            `;
+            breakdownTableBody.innerHTML = '';
+
+            const months = N * 12;
+
+            for (let m = 1; m <= months; m++) {
+                // --- SCENARIO A ---
+                // Bostaden stiger i värde månad för månad
+                houseA = houseA * (1 + g_house);
+                
+                // Beräkna ränte- och amorteringsavgift på det aktuella lånet
+                let interestA = loanA * r_loan;
+                let actualAmort = Math.min(monthly_amort, loanA);
+                loanA -= actualAmort;
+
+                // Sidobesparingarna växer
+                savingsA = savingsA * (1 + r_savings) + PMT;
+
+                // --- SCENARIO B ---
+                // Bostaden stiger i värde (men utan renoveringsboosten)
+                houseB = houseB * (1 + g_house);
+
+                // För en matematisk rättvis jämförelse lägger vi räntebesparingen 
+                // och amorteringen direkt i portföljen för Scenario B!
+                let extraSavedInB = interestA + actualAmort;
+                savingsB = savingsB * (1 + r_savings) + PMT + extraSavedInB;
+
+                // Samla in årlig historik till diagram och tabell
+                if (m % 12 === 0) {
+                    let year = m / 12;
+                    let nwA = houseA - loanA + savingsA;
+                    let nwB = houseB + savingsB;
+                    let realNWA = nwA / Math.pow(1 + inflationRate, year);
+
+                    chartLabels.push(`År ${year}`);
+                    netWorthDataA.push(Math.round(nwA));
+                    netWorthDataB.push(Math.round(nwB));
+                    realNetWorthDataA.push(Math.round(realNWA));
+
+                    // Skapa tabellrad
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-slate-50 dark:hover:bg-slate-800/30 text-xs sm:text-sm";
+                    row.innerHTML = `
+                        <td class="py-2 px-3 text-center font-medium">${year}</td>
+                        <td class="py-2 px-3 text-right text-slate-600 dark:text-slate-400">${formatSEK(houseA)}</td>
+                        <td class="py-2 px-3 text-right text-red-500 font-medium">${loanA > 0 ? formatSEK(loanA) : 'Avbetalat'}</td>
+                        <td class="py-2 px-3 text-right font-semibold text-violet-600 dark:text-violet-400">${formatSEK(nwA)}</td>
+                        <td class="py-2 px-3 text-right font-semibold text-slate-700 dark:text-slate-300">${formatSEK(nwB)}</td>
+                    `;
+                    breakdownTableBody.appendChild(row);
+                }
+            }
+
+            const finalNWA = houseA - loanA + savingsA;
+            const finalNWB = houseB + savingsB;
+
+            // Uppdatera resultatkort
+            netWorthA.textContent = formatSEK(finalNWA);
+            netWorthB.textContent = formatSEK(finalNWB);
+
+            const diff = Math.abs(finalNWA - finalNWB);
+            netWorthDiff.textContent = formatSEK(diff);
+
+            // Dynamisk förklaring och färg på vinnarkortet
+            if (finalNWA > finalNWB) {
+                winnerCard.className = "p-5 rounded-2xl shadow-sm border border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20 dark:border-emerald-900/30";
+                winnerLabel.textContent = "🏆 Låna & Renovera vinner";
+                winnerLabel.className = "text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-400";
+                winnerNetWorthDiff = finalNWA - finalNWB;
+                netWorthDiff.className = "text-2xl font-black mt-1 text-emerald-600 dark:text-emerald-400";
+                winnerSubtext.textContent = "Renoveringens värdeökning och fastighetsmarknadens hävstång överträffar dina lånekostnader!";
+            } else {
+                winnerCard.className = "p-5 rounded-2xl shadow-sm border border-violet-200 bg-violet-50 dark:bg-violet-950/20 dark:border-violet-900/30";
+                winnerLabel.textContent = "🏆 Bara Spara vinner";
+                winnerLabel.className = "text-xs font-bold uppercase tracking-wider text-violet-800 dark:text-violet-400";
+                netWorthDiff.className = "text-2xl font-black mt-1 text-violet-600 dark:text-violet-400";
+                winnerSubtext.textContent = "Räntekostnaderna för att låna samt alternativkostnaden förlorat sparkapital gör det mer lönsamt att bara spara.";
+            }
+
+            renderHouseChart(chartLabels, netWorthDataA, netWorthDataB, realNetWorthDataA);
+        }
+
+        // Render Chart for Tab 1 (Standard savings)
+        function renderStandardChart(labels, nominal, real, invested) {
+            const isDark = document.documentElement.classList.contains('dark');
+            const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
+            const labelColor = isDark ? '#94a3b8' : '#64748b';
+
+            if (myChart) {
+                myChart.data.labels = labels;
+                myChart.data.datasets = [
+                    {
+                        label: 'Framtida värde (Nominellt)',
+                        data: nominal,
+                        borderColor: '#16a34a',
+                        backgroundColor: 'rgba(22, 163, 74, 0.08)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.15
+                    },
+                    {
+                        label: 'Köpkraft (Inflationsjusterat)',
+                        data: real,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0.15
+                    },
+                    {
+                        label: 'Totalt insatt kapital',
+                        data: invested,
+                        borderColor: '#94a3b8',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.1
+                    }
+                ];
+                myChart.options.scales.x.grid.color = gridColor;
+                myChart.options.scales.y.grid.color = gridColor;
+                myChart.options.scales.x.ticks.color = labelColor;
+                myChart.options.scales.y.ticks.color = labelColor;
+                myChart.update();
+            } else {
+                const ctx = document.getElementById('growthChart').getContext('2d');
+                myChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [] // Sätts ovan
+                    },
+                    options: getChartOptions(labelColor, gridColor)
+                });
+                // Återkör för att rita ut korrekt
+                renderStandardChart(labels, nominal, real, invested);
+            }
+        }
+
+        // Render Chart for Tab 2 (House / Leverage Comparison)
+        function renderHouseChart(labels, nwA, nwB, realA) {
+            const isDark = document.documentElement.classList.contains('dark');
+            const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
+            const labelColor = isDark ? '#94a3b8' : '#64748b';
+
+            if (myChart) {
+                myChart.data.labels = labels;
+                myChart.data.datasets = [
+                    {
+                        label: 'Scenario A: Låna & Renovera (Netto)',
+                        data: nwA,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.08)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.15
+                    },
+                    {
+                        label: 'Scenario B: Undvik lån (Netto)',
+                        data: nwB,
+                        borderColor: '#64748b',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [4, 4],
+                        fill: false,
+                        tension: 0.15
+                    },
+                    {
+                        label: 'Scenario A Köpkraft (Real)',
+                        data: realA,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'transparent',
+                        borderWidth: 1.5,
+                        borderDash: [2, 2],
+                        fill: false,
+                        tension: 0.15
+                    }
+                ];
+                myChart.options.scales.x.grid.color = gridColor;
+                myChart.options.scales.y.grid.color = gridColor;
+                myChart.options.scales.x.ticks.color = labelColor;
+                myChart.options.scales.y.ticks.color = labelColor;
+                myChart.update();
+            } else {
+                const ctx = document.getElementById('growthChart').getContext('2d');
+                myChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [] // Sätts ovan
+                    },
+                    options: getChartOptions(labelColor, gridColor)
+                });
+                renderHouseChart(labels, nwA, nwB, realA);
+            }
+        }
+
+        // Helper: Chart Options Template
+        function getChartOptions(labelColor, gridColor) {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            boxWidth: 10,
+                            color: labelColor,
+                            font: { size: 11 }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return (context.dataset.label || '') + ': ' + formatSEK(context.parsed.y);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: gridColor },
+                        ticks: { color: labelColor }
+                    },
+                    y: {
+                        grid: { color: gridColor },
+                        ticks: {
+                            color: labelColor,
+                            callback: function(value) {
+                                return (value / 1000000).toFixed(1) + ' Mkr';
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        function updateChartTheme() {
+            if (!myChart) return;
+            const isDark = document.documentElement.classList.contains('dark');
+            const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
+            const labelColor = isDark ? '#94a3b8' : '#64748b';
+            myChart.options.scales.x.grid.color = gridColor;
+            myChart.options.scales.y.grid.color = gridColor;
+            myChart.options.scales.x.ticks.color = labelColor;
+            myChart.options.scales.y.ticks.color = labelColor;
+            myChart.options.plugins.legend.labels.color = labelColor;
+            myChart.update();
+        }
+
+        // Initialize App
+        window.onload = function() {
+            runCalculation();
+        };
+    </script>
+</body>
+</html>
