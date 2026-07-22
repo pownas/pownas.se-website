@@ -12,7 +12,7 @@
     
     <style>
       /* ==========================================================================
-         1. MODERN VARIABLE SETUP VIA :has() & WCAG COMPLIANT DARK MODE
+         1. MODERN VARIABLE SETUP & WCAG COMPLIANT THEMES
          ========================================================================== */
       :root {
         --bg: #f5f7fb;
@@ -24,15 +24,14 @@
         --hero-bg: linear-gradient(120deg, rgba(255, 255, 255, 0.98) 5%, rgba(240, 247, 255, 0.92) 60%);
         --shadow: rgba(15, 23, 42, 0.04);
         
-        /* Highlight / Glow variabler för hover */
         --hover-bg: rgba(2, 132, 199, 0.06);
         --hover-glow: rgba(2, 132, 199, 0.12);
       }
 
-      /* Aktiveras helt utan JS via din CSS-toggleswitch */
+      /* Aktiveras dynamiskt via kryssrutan (som styrs av både klick och webbläsarens API) */
       html:has(#theme-toggle:checked) {
         --bg: #090d16;
-        --ink: #f9fafb; /* Maximal kontrast för text i dark mode */
+        --ink: #f9fafb; /* Högsta kontrast för text i dark mode */
         --muted: #9ca3af; /* WCAG AA godkänd grå för mörk bakgrund */
         --surface: #111827;
         --line: #1f2937;
@@ -40,7 +39,6 @@
         --hero-bg: linear-gradient(120deg, #161f30 0%, #111827 100%);
         --shadow: rgba(0, 0, 0, 0.3);
         
-        /* Dark mode glöd */
         --hover-bg: rgba(56, 189, 248, 0.08);
         --hover-glow: rgba(56, 189, 248, 0.2);
       }
@@ -87,7 +85,7 @@
       .hero {
         border: 1px solid var(--line);
         border-radius: 20px;
-        padding: 1.5rem; /* Krympt från 2rem för mer kompakt känsla */
+        padding: 1.5rem;
         background: var(--hero-bg);
         box-shadow: 0 15px 35px var(--shadow);
         transition: all 0.3s;
@@ -123,11 +121,12 @@
         transition: background-color 0.2s;
       }
 
+      /* Emojin visar vad man byter TILL om man klickar */
       html:has(#theme-toggle:checked) .theme-icon::before { content: "☀️ Light Mode"; }
       html:not(:has(#theme-toggle:checked)) .theme-icon::before { content: "🌙 Dark Mode"; }
 
       .hero-content {
-        margin-top: 1.25rem; /* Minskat rejält från 3rem för att bli kompakt */
+        margin-top: 1rem;
       }
 
       .eyebrow {
@@ -144,12 +143,12 @@
         font-size: clamp(1.6rem, 4.5vw, 2.4rem);
         line-height: 1.2;
         font-weight: 800;
-        max-width: 100%; /* Sträcker ut texten över hela bredden */
+        max-width: 100%;
       }
 
       .lead {
         margin: 0;
-        max-width: 100%; /* Låter även brödtexten flöda fritt */
+        max-width: 100%;
         color: var(--muted);
         font-size: 1rem;
         line-height: 1.5;
@@ -180,7 +179,7 @@
       }
 
       /* ==========================================================================
-         5. LÄNKAR MED TILLGÄNGLIG "BLURRED HIGHLIGHT" HOVER
+         5. INTERACTIVE LISTS WITH BLURRED HIGHLIGHT
          ========================================================================== */
       .interactive-list {
         margin: 0;
@@ -188,7 +187,7 @@
         list-style: none;
         display: flex;
         flex-direction: column;
-        gap: 0.25rem; /* Skapar ett litet mellanrum mellan radernas highlights */
+        gap: 0.25rem;
       }
 
       .interactive-list a {
@@ -196,34 +195,30 @@
         align-items: center;
         justify-content: space-between;
         padding: 0.75rem 0.75rem;
-        margin-inline: -0.75rem; /* Gör att highlighten går ändå ut till kortets kant */
+        margin-inline: -0.75rem;
         border-radius: 8px;
-        color: var(--ink); /* Samma textfärg som resten av sidan för perfekt kontrast */
+        color: var(--ink);
         font-weight: 600;
         font-size: 0.95rem;
         text-decoration: none;
         outline: none;
-        /* transition-filter gör att blurren blir mjuk vid hovring */
         transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s, color 0.1s;
       }
 
-      /* Separator-linje flyttad till kanten så den inte krockar med highlight-boxen */
       .interactive-list li:not(:last-child) a {
         border-bottom: 1px solid var(--line);
       }
       
       .interactive-list li:not(:last-child) a:hover {
-        border-bottom-color: transparent; /* Dölj linjen när raden blir aktiv */
+        border-bottom-color: transparent;
       }
 
-      /* SKAPAR HIGHLIGHT/GLOW VID HOVER OCH TAB-FOKUS */
       .interactive-list a:hover,
       .interactive-list a:focus-visible {
         background-color: var(--hover-bg);
-        /* En mjuk, suddig skugga (blurred highlight) runt hela elementet */
         box-shadow: 0 0 16px 2px var(--hover-glow);
         transform: translateX(4px);
-        color: var(--ink); /* Garanterar att textfärgen förblir orörd enligt WCAG */
+        color: var(--ink); /* Säkerställer WCAG-kontrast vid hovring */
       }
 
       .icon-wrapper {
@@ -271,7 +266,7 @@
   </head>
   <body>
     
-    <!-- Status-hållare för mörkläge -->
+    <!-- State controller för mörkläge -->
     <input type="checkbox" id="theme-toggle" class="sr-only">
 
     <div class="page-shell">
@@ -365,5 +360,31 @@
       </footer>
     </div>
 
+    <!-- ==========================================================================
+       7. NATIVE BROWSER API SYSTEM THEME SYNC
+       ========================================================================== */ -->
+    <script>
+      (function() {
+        const themeToggle = document.getElementById('theme-toggle');
+        // Webbläsarens inbyggda API för att kontrollera systeminställning
+        const systemDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+        function syncThemeWithSystem(e) {
+          // Uppdatera checkboxens läge baserat på om systemet är mörkt eller ljust
+          themeToggle.checked = e.matches;
+        }
+
+        // Kör direkt vid rendering för att undvika "blixtrande" vitt ljus
+        syncThemeWithSystem(systemDarkQuery);
+
+        // Lyssna live ifall användaren ändrar sitt systemtema i OS-inställningarna
+        try {
+          systemDarkQuery.addEventListener('change', syncThemeWithSystem);
+        } catch (err) {
+          // Bakåtkompatibilitet för äldre webbläsare
+          systemDarkQuery.addListener(syncThemeWithSystem);
+        }
+      })();
+    </script>
   </body>
 </html>
