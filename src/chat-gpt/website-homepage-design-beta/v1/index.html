@@ -29,15 +29,15 @@
                 <a class="nav-link" href="https://interest.pownas.se">Ränta på ränta-kalkylator</a>
               </li>
               <li class="nav-item dropdown">
-                <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center"
+                <button class="btn btn-link nav-link px-0 px-lg-2 py-2 dropdown-toggle d-flex align-items-center"
                         id="bd-theme"
                         type="button"
                         aria-expanded="false"
                         data-bs-toggle="dropdown"
-                        data-bs-display="static">
-                  <svg class="bi my-1 theme-icon-active" height="32" width="32"><use href="#circle-half"></use></svg>
-                  </svg>
-                  <span>Toggle theme</span>
+                        data-bs-display="static"
+                        aria-label="Toggle theme (auto)">
+                  <svg class="bi my-1 theme-icon-active" height="32" width="32" aria-hidden="true"><use href="#circle-half"></use></svg>
+                  <span class="d-lg-none ms-2" id="bd-theme-text">Toggle theme</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme" style="--bs-dropdown-min-width: 8rem;">
                   <li>
@@ -111,9 +111,8 @@
           </ul>
         </div>
       </div>
-
       <script src="https://assets.pownas.se/dist/bootstrap/v5.3.8/js/bootstrap.bundle.min.js"></script>
-      <script src="https://assets.pownas.se/js/bootstrap-theme-switcher.js"></script>
+      <script src="https://assets.pownas.se/dist/bootstrap-theme-switcher/v2025/color-modes.js"></script>
     </footer>
   </body>
   <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
