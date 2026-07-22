@@ -154,39 +154,35 @@
 	</main>
 
 	<script>
-		const indexPaths = [
-			"amortering-vs-investering/v1/index.html",
-			"amortering-vs-investering/v2/index.html",
-			"amortering-vs-investering/v3/index.html",
-			"bil/v1/index.html",
-			"bil/v2/index.html",
-			"bil/v3/index.html",
-			"bolan-invest-summary/index.html",
-			"ekonomi-visualisering/index.html",
-			"lan/v1/index.html",
-			"lan/v2/index.html"
+		const indexPages = [
+			{ name: "Amortering vs investering (v1)", path: "amortering-vs-investering/v1/index.html" },
+			{ name: "Amortering vs investering (v2)", path: "amortering-vs-investering/v2/index.html" },
+			{ name: "Amortering vs investering (v3)", path: "amortering-vs-investering/v3/index.html" },
+			{ name: "Bilkalkylator (v1)", path: "bil/v1/index.html" },
+			{ name: "Bilkalkylator (v2)", path: "bil/v2/index.html" },
+			{ name: "Bilkalkylator (v3)", path: "bil/v3/index.html" },
+			{ name: "Bolån investeringssummering", path: "bolan-invest-summary/index.html" },
+			{ name: "Ekonomivisualisering", path: "ekonomi-visualisering/index.html" },
+			{ name: "Lånekalkylator (v1)", path: "lan/v1/index.html" },
+			{ name: "Lånekalkylator (v2)", path: "lan/v2/index.html" }
 		];
 
 		const listEl = document.getElementById("folderList");
 		const metaEl = document.getElementById("meta");
 		const updatedEl = document.getElementById("updatedAt");
 
-		function folderLabel(path) {
-			return path.replace(/\/index\.html$/i, "");
-		}
-
 		function toFolderHref(path) {
 			return "./" + path.replace(/index\.html$/i, "");
 		}
 
-		function renderLinks(paths) {
-			const sorted = [...paths].sort((a, b) => a.localeCompare(b, "sv"));
+		function renderLinks(pages) {
+			const sorted = [...pages].sort((a, b) => a.name.localeCompare(b.name, "sv"));
 
 			metaEl.textContent = sorted.length + " undersidor hittades.";
 
 			const fragment = document.createDocumentFragment();
 
-			sorted.forEach((path) => {
+			sorted.forEach((page) => {
 				const li = document.createElement("li");
 				li.className = "folder-item";
 
@@ -195,17 +191,17 @@
 				const rawPath = document.createElement("div");
 
 				name.className = "folder-name";
-				name.textContent = folderLabel(path);
+				name.textContent = page.name;
 
 				rawPath.className = "folder-path";
-				rawPath.textContent = path;
+				rawPath.textContent = page.path;
 
 				textWrap.appendChild(name);
 				textWrap.appendChild(rawPath);
 
 				const link = document.createElement("a");
 				link.className = "open-link";
-				link.href = toFolderHref(path);
+				link.href = toFolderHref(page.path);
 				link.textContent = "Öppna";
 
 				li.appendChild(textWrap);
@@ -258,7 +254,7 @@
 				: "Senast uppdaterad: okand";
 		}
 
-		renderLinks(indexPaths);
+		renderLinks(indexPages);
 		renderLastUpdated();
 	</script>
 </body>
