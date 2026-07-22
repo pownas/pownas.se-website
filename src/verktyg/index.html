@@ -52,7 +52,11 @@
     <script>
       const indexPages = [
         { name: "Audio visualizer", path: "audio-visualizer/index.html" },
-        { name: "Kalkylatorer (Bil, Lån, Sparande)", path: "kalkylator/index.html" },
+        {
+          name: "Kalkylatorer (Bil, Lån, Sparande)",
+          nameHtml: "Kalkylatorer (Bil,&nbsp;Lån,&nbsp;Sparande)",
+          path: "kalkylator/index.html"
+        },
         { name: "Responsiv webb-tester", path: "responsiv-tester/index.html" },
         { name: "Rich text editor", path: "rich-text-editor/index.html" }
       ];
@@ -75,12 +79,20 @@
           const li = document.createElement("li");
           li.className = "folder-item";
 
+          const link = document.createElement("a");
+          link.className = "folder-link";
+          link.href = toFolderHref(page.path);
+
           const textWrap = document.createElement("div");
           const name = document.createElement("div");
           const rawPath = document.createElement("div");
 
           name.className = "folder-name";
-          name.textContent = page.name;
+          if (page.nameHtml) {
+            name.innerHTML = page.nameHtml;
+          } else {
+            name.textContent = page.name;
+          }
 
           rawPath.className = "folder-path";
           rawPath.textContent = page.path;
@@ -88,12 +100,12 @@
           textWrap.appendChild(name);
           textWrap.appendChild(rawPath);
 
-          const link = document.createElement("a");
-          link.className = "open-link";
-          link.href = toFolderHref(page.path);
-          link.textContent = "Öppna";
+          const cta = document.createElement("span");
+          cta.className = "folder-cta";
+          cta.textContent = "Öppna";
 
-          li.appendChild(textWrap);
+          link.appendChild(textWrap);
+          link.appendChild(cta);
           li.appendChild(link);
           fragment.appendChild(li);
         });
