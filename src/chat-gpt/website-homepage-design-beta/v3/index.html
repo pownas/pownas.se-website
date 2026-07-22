@@ -12,39 +12,41 @@
     
     <style>
       /* ==========================================================================
-         1. MODERN VARIABLE SETUP & DARK MODE VIA :has()
+         1. MODERN VARIABLE SETUP VIA :has() & WCAG COMPLIANT DARK MODE
          ========================================================================== */
       :root {
         --bg: #f5f7fb;
         --ink: #0f172a;
-        --muted: #5b6478;
+        --muted: #475569; /* WCAG AA godkänd grå för ljus bakgrund */
         --surface: #ffffff;
         --line: #d8dfeb;
-        --accent: #0a6cff;
-        --accent-strong: #004ec2;
+        --accent: #0284c7;
         --hero-bg: linear-gradient(120deg, rgba(255, 255, 255, 0.98) 5%, rgba(240, 247, 255, 0.92) 60%);
-        --shadow: rgba(15, 23, 42, 0.06);
-        --chip-bg: #eaf2ff;
-        --chip-border: #bfd4ff;
+        --shadow: rgba(15, 23, 42, 0.04);
+        
+        /* Highlight / Glow variabler för hover */
+        --hover-bg: rgba(2, 132, 199, 0.06);
+        --hover-glow: rgba(2, 132, 199, 0.12);
       }
 
-      /* Om kryssrutan #theme-toggle är markerad, skifta till dark mode! */
+      /* Aktiveras helt utan JS via din CSS-toggleswitch */
       html:has(#theme-toggle:checked) {
-        --bg: #0b0f19;
-        --ink: #f8fafc;
-        --muted: #94a3b8;
-        --surface: #131c2e;
-        --line: #222f47;
+        --bg: #090d16;
+        --ink: #f9fafb; /* Maximal kontrast för text i dark mode */
+        --muted: #9ca3af; /* WCAG AA godkänd grå för mörk bakgrund */
+        --surface: #111827;
+        --line: #1f2937;
         --accent: #38bdf8;
-        --accent-strong: #7dd3fc;
-        --hero-bg: linear-gradient(120deg, #162238 0%, #111a2e 100%);
-        --shadow: rgba(0, 0, 0, 0.4);
-        --chip-bg: #1e293b;
-        --chip-border: #334155;
+        --hero-bg: linear-gradient(120deg, #161f30 0%, #111827 100%);
+        --shadow: rgba(0, 0, 0, 0.3);
+        
+        /* Dark mode glöd */
+        --hover-bg: rgba(56, 189, 248, 0.08);
+        --hover-glow: rgba(56, 189, 248, 0.2);
       }
 
       /* ==========================================================================
-         2. BASE RESET & RESET INTERACTIVES
+         2. BASE RESET & SHELL
          ========================================================================== */
       * { box-sizing: border-box; }
       
@@ -52,32 +54,22 @@
         margin: 0;
         color: var(--ink);
         background-color: var(--bg);
-        /* Modern gradient-teknik som tonar snyggt även i dark mode */
-        background-image: radial-gradient(circle at 90% 0%, var(--chip-bg) 0%, transparent 40%);
+        background-image: radial-gradient(circle at 90% 0%, var(--hover-bg) 0%, transparent 45%);
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         text-rendering: optimizeLegibility;
         -webkit-font-smoothing: antialiased;
         transition: background-color 0.3s, color 0.3s;
       }
 
-      a {
-        color: var(--accent-strong);
-        text-decoration: none;
-        transition: color 0.2s ease;
-      }
-
-      a:hover { color: var(--accent); }
-
       .page-shell {
         width: min(100% - 2rem, 900px);
-        margin-block: min(4rem, 8vh);
+        margin-block: min(3rem, 6vh);
         margin-inline: auto;
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 1.25rem;
       }
 
-      /* Dölj kryssrutan men behåll den tillgänglig för skärmläsare */
       .sr-only {
         position: absolute;
         width: 1px;
@@ -90,14 +82,14 @@
       }
 
       /* ==========================================================================
-         3. HERO COMPONENT
+         3. HERO COMPONENT (KOMPAKT & BRED TEXT)
          ========================================================================== */
       .hero {
         border: 1px solid var(--line);
-        border-radius: 24px;
-        padding: 2rem;
+        border-radius: 20px;
+        padding: 1.5rem; /* Krympt från 2rem för mer kompakt känsla */
         background: var(--hero-bg);
-        box-shadow: 0 20px 40px var(--shadow);
+        box-shadow: 0 15px 35px var(--shadow);
         transition: all 0.3s;
       }
 
@@ -112,97 +104,83 @@
       .brand {
         display: inline-flex;
         align-items: center;
-        gap: 0.7rem;
+        gap: 0.6rem;
         color: var(--ink);
         font-weight: 700;
-        font-size: 1.15rem;
-      }
-
-      /* Rolig micro-animering på logotypen vid hovring på hela brand-länken */
-      .brand:hover img {
-        transform: rotate(-10deg) scale(1.05);
-      }
-      .brand img {
-        transition: transform 0.2s ease;
+        font-size: 1.1rem;
+        text-decoration: none;
       }
 
       .theme-btn {
         cursor: pointer;
-        padding: 0.5rem 0.8rem;
+        padding: 0.4rem 0.75rem;
         border-radius: 99px;
         border: 1px solid var(--line);
         background: var(--surface);
         font-size: 0.85rem;
         user-select: none;
+        color: var(--ink);
+        transition: background-color 0.2s;
       }
 
-      /* Byt ut emojin beroende på status med ren CSS */
       html:has(#theme-toggle:checked) .theme-icon::before { content: "☀️ Light Mode"; }
       html:not(:has(#theme-toggle:checked)) .theme-icon::before { content: "🌙 Dark Mode"; }
 
       .hero-content {
-        margin-top: 3rem;
+        margin-top: 1.25rem; /* Minskat rejält från 3rem för att bli kompakt */
       }
 
       .eyebrow {
         margin: 0;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.08em;
         font-size: 0.75rem;
         font-weight: 700;
         color: var(--muted);
       }
 
       h1 {
-        margin-block: 0.5rem 0.75rem;
-        font-size: clamp(1.8rem, 5vw, 2.5rem);
-        line-height: 1.15;
+        margin-block: 0.4rem 0.6rem;
+        font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+        line-height: 1.2;
         font-weight: 800;
-        max-width: 22ch;
+        max-width: 100%; /* Sträcker ut texten över hela bredden */
       }
 
       .lead {
         margin: 0;
-        max-width: 54ch;
+        max-width: 100%; /* Låter även brödtexten flöda fritt */
         color: var(--muted);
-        font-size: 1.05rem;
-        line-height: 1.6;
+        font-size: 1rem;
+        line-height: 1.5;
       }
 
       /* ==========================================================================
-         4. CARDS & GRID LAYOUT
+         4. CARDS & GRID
          ========================================================================== */
       .content-grid {
         display: grid;
-        /* auto-fit gör layouten responsiv helt utan media queries */
         grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 1.5rem;
+        gap: 1.25rem;
       }
 
       .card {
         background: var(--surface);
         border: 1px solid var(--line);
-        border-radius: 20px;
+        border-radius: 16px;
         padding: 1.5rem;
-        box-shadow: 0 10px 30px var(--shadow);
-        transition: transform 0.2s ease, background-color 0.3s;
-      }
-
-      /* Subtil lyft-effekt på kortet när användaren fokuserar eller hovrar */
-      .card:hidden { opacity: 0; }
-      .card:focus-within, .card:hover {
-        transform: translateY(-2px);
+        box-shadow: 0 10px 25px var(--shadow);
+        transition: background-color 0.3s;
       }
 
       h2 {
-        margin: 0 0 1rem 0;
-        font-size: 1.2rem;
+        margin: 0 0 0.75rem 0;
+        font-size: 1.15rem;
         font-weight: 700;
-        letter-spacing: -0.01em;
       }
 
       /* ==========================================================================
-         5. THE :has() MOUSE-HOVER MAGIC (LISTS)
+         5. LÄNKAR MED TILLGÄNGLIG "BLURRED HIGHLIGHT" HOVER
          ========================================================================== */
       .interactive-list {
         margin: 0;
@@ -210,37 +188,46 @@
         list-style: none;
         display: flex;
         flex-direction: column;
+        gap: 0.25rem; /* Skapar ett litet mellanrum mellan radernas highlights */
       }
 
       .interactive-list a {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding-block: 0.8rem;
-        border-bottom: 1px solid var(--line);
-        color: var(--ink);
+        padding: 0.75rem 0.75rem;
+        margin-inline: -0.75rem; /* Gör att highlighten går ändå ut till kortets kant */
+        border-radius: 8px;
+        color: var(--ink); /* Samma textfärg som resten av sidan för perfekt kontrast */
         font-weight: 600;
         font-size: 0.95rem;
-        transition: opacity 0.2s ease, transform 0.2s ease, color 0.2s ease;
+        text-decoration: none;
+        outline: none;
+        /* transition-filter gör att blurren blir mjuk vid hovring */
+        transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s, color 0.1s;
       }
 
-      .interactive-list li:last-child a {
-        border-bottom: 0;
+      /* Separator-linje flyttad till kanten så den inte krockar med highlight-boxen */
+      .interactive-list li:not(:last-child) a {
+        border-bottom: 1px solid var(--line);
+      }
+      
+      .interactive-list li:not(:last-child) a:hover {
+        border-bottom-color: transparent; /* Dölj linjen när raden blir aktiv */
       }
 
-      /* MAGIN: Om listan hovras, tona ner ALLA länkar... */
-      .interactive-list:has(a:hover) a {
-        opacity: 0.5;
-      }
-      /* ...UTOM den som faktiskt hovras! Den lyfts fram istället */
-      .interactive-list a:hover {
-        opacity: 1;
-        color: var(--accent);
+      /* SKAPAR HIGHLIGHT/GLOW VID HOVER OCH TAB-FOKUS */
+      .interactive-list a:hover,
+      .interactive-list a:focus-visible {
+        background-color: var(--hover-bg);
+        /* En mjuk, suddig skugga (blurred highlight) runt hela elementet */
+        box-shadow: 0 0 16px 2px var(--hover-glow);
         transform: translateX(4px);
+        color: var(--ink); /* Garanterar att textfärgen förblir orörd enligt WCAG */
       }
 
       .icon-wrapper {
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: 0.75rem;
       }
@@ -249,13 +236,18 @@
         color: var(--accent);
         fill: currentColor;
         flex-shrink: 0;
-        transition: transform 0.2s ease;
       }
-      
-      /* Rotera eller skjut på ikonen/pilen när länken blir aktiv */
-       Tar tag i pilen (.arrow-icon) och skjuter den åt höger vid hovring
-      .interactive-list a:hover .arrow-icon {
-        transform: translateX(2px);
+
+      .arrow-icon {
+        color: var(--muted);
+        flex-shrink: 0;
+        transition: transform 0.2s;
+      }
+
+      .interactive-list a:hover .arrow-icon,
+      .interactive-list a:focus-visible .arrow-icon {
+        transform: translateX(3px);
+        color: var(--accent);
       }
 
       /* ==========================================================================
@@ -263,35 +255,34 @@
          ========================================================================== */
       .site-footer {
         border-top: 1px solid var(--line);
-        margin-top: 2rem;
-        padding-block: 1.5rem 0;
+        margin-top: 1rem;
+        padding-block: 1.25rem 0;
         display: flex;
         justify-content: space-between;
         gap: 1rem;
         flex-wrap: wrap;
         color: var(--muted);
-        font-size: 0.88rem;
+        font-size: 0.85rem;
       }
 
       .site-footer p { margin: 0; }
-      .site-footer a { font-weight: 500; }
+      .site-footer a { color: var(--ink); font-weight: 600; text-decoration: underline; }
     </style>
   </head>
   <body>
     
-    <!-- Global theme switch state handler -->
+    <!-- Status-hållare för mörkläge -->
     <input type="checkbox" id="theme-toggle" class="sr-only">
 
     <div class="page-shell">
       <header class="hero">
         <div class="hero-top">
           <a class="brand" href="https://www.pownas.se" aria-label="Pownas home">
-            <img src="/favicon.svg" alt="pownas.se logo" width="36" height="36">
+            <img src="/favicon.svg" alt="pownas.se logo" width="34" height="34">
             <span>Pownas.se</span>
           </a>
           
-          <!-- Ren CSS Dark Mode knapp -->
-          <label for="theme-toggle" class="theme-btn" aria-label="Toggle dark mode">
+          <label for="theme-toggle" class="theme-btn" aria-label="Toggle theme">
             <span class="theme-icon"></span>
           </label>
         </div>
@@ -340,7 +331,6 @@
             <li>
               <a href="https://www.linkedin.com/in/JonasArvidson" target="_blank" rel="noopener noreferrer">
                 <span class="icon-wrapper">
-                  <!-- Inbyggd SVG för LinkedIn -->
                   <svg class="icon" width="18" height="18" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
                   <span>LinkedIn</span>
                 </span>
@@ -350,7 +340,6 @@
             <li>
               <a href="https://github.com/pownas" target="_blank" rel="noopener noreferrer">
                 <span class="icon-wrapper">
-                  <!-- Inbyggd SVG för GitHub -->
                   <svg class="icon" width="18" height="18" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
                   <span>GitHub</span>
                 </span>
@@ -360,7 +349,6 @@
             <li>
               <a href="https://www.youtube.com/@pownas-lar-dig" target="_blank" rel="noopener noreferrer">
                 <span class="icon-wrapper">
-                  <!-- Inbyggd SVG för YouTube -->
                   <svg class="icon" width="18" height="18" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                   <span>YouTube</span>
                 </span>
@@ -373,7 +361,7 @@
 
       <footer class="site-footer">
         <p>Created by <a href="https://github.com/pownas" target="_blank" rel="noopener noreferrer">Pownas</a></p>
-        <p>Built with pure HTML &amp; CSS. Hosted via <a href="https://github.com/pownas/pownas.se-website" target="_blank" rel="noopener noreferrer">GitHub Pages</a>.</p>
+        <p>Built with HTML &amp; CSS. Hosted via <a href="https://github.com/pownas/pownas.se-website" target="_blank" rel="noopener noreferrer">GitHub Pages</a>.</p>
       </footer>
     </div>
 
