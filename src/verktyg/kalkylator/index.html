@@ -1,234 +1,175 @@
 <!doctype html>
 <html lang="sv">
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Kalkylatorer - Pownas.se</title>
-	<meta name="description" content="Översikt av kalkylatorer med snabblänkar till alla undersidor.">
-	<meta name="robots" content="follow, noarchive, nosnippet">
-	<link rel="icon" href="/favicon.svg">
-	<link href="../../assets/css/main.css" rel="stylesheet" media="all">
-	<meta property="og:image" content="/favicon.svg">
-	<meta property="og:type" content="website">
-
-	<style>
-		.tool-index-card {
-			display: grid;
-			gap: 0.9rem;
-		}
-
-		.meta,
-		.updated {
-			margin: 0;
-			color: var(--muted);
-		}
-
-		.updated {
-			font-size: 0.9rem;
-		}
-
-		.folder-list {
-			list-style: none;
-			margin: 0;
-			padding: 0;
-			display: grid;
-			gap: 0.7rem;
-		}
-
-		.folder-item {
-			border: 1px solid var(--line);
-			border-radius: 12px;
-			padding: 0.75rem 0.9rem;
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			gap: 0.85rem;
-			background: var(--surface);
-		}
-
-		.folder-name {
-			font-weight: 700;
-			color: var(--ink);
-		}
-
-		.folder-path {
-			margin-top: 0.2rem;
-			color: var(--muted);
-			font-size: 0.88rem;
-			word-break: break-all;
-		}
-
-		.open-link {
-			flex-shrink: 0;
-		}
-
-		@media (max-width: 640px) {
-			.folder-item {
-				flex-direction: column;
-				align-items: flex-start;
-			}
-		}
-	</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkylatorer - Pownas.se</title>
+  <meta name="description" content="Översikt av kalkylatorer med snabblänkar till alla undersidor.">
+  <meta name="robots" content="follow, noarchive, nosnippet">
+  <link rel="icon" href="/favicon.svg">
+  <link href="../../assets/css/main.css" rel="stylesheet" media="all">
+  <meta property="og:image" content="/favicon.svg">
+  <meta property="og:type" content="website">
 </head>
 <body>
-	<input type="checkbox" id="theme-toggle" class="sr-only">
+  <input type="checkbox" id="theme-toggle" class="sr-only">
 
-	<div class="page-shell">
-		<header class="hero">
-			<div class="hero-top">
-				<a class="brand" href="https://www.pownas.se" aria-label="Pownas home">
-					<img src="/favicon.svg" alt="pownas.se logo" width="34" height="34">
-					<span>Pownas.se</span>
-				</a>
+  <div class="page-shell">
+    <header class="hero">
+      <div class="hero-top">
+        <a class="brand" href="https://www.pownas.se" aria-label="Pownas home">
+          <img src="/favicon.svg" alt="pownas.se logo" width="34" height="34">
+          <span>Pownas.se</span>
+        </a>
 
-				<label for="theme-toggle" class="theme-btn" aria-label="Toggle theme">
-					<span class="theme-icon"></span>
-				</label>
-			</div>
+        <label for="theme-toggle" class="theme-btn" aria-label="Toggle theme">
+          <span class="theme-icon"></span>
+        </label>
+      </div>
 
-			<div class="hero-content">
-				<p class="eyebrow">Kalkylatorer</p>
-				<h1>Alla kalkylator-sidor</h1>
-				<p class="lead">Automatisk översikt av undermapparnas index-sidor i denna mapp.</p>
-			</div>
-		</header>
+      <div class="hero-content">
+        <p class="eyebrow">Kalkylatorer</p>
+        <h1>Alla kalkylator-sidor</h1>
+        <p class="lead">Automatisk översikt av undermapparnas index-sidor i denna mapp.</p>
+      </div>
+    </header>
 
-		<main id="content" class="content-grid">
-			<section class="card tool-index-card" aria-labelledby="calculatorHeading">
-				<h2 id="calculatorHeading">Tillgängliga undersidor</h2>
-				<p id="meta" class="meta"></p>
-				<p id="updatedAt" class="updated">Senast uppdaterad: 2026-07-21 10:08 (laddar...)</p>
-				<ul id="folderList" class="folder-list"></ul>
-			</section>
-		</main>
+    <main id="content" class="content-grid">
+      <section class="card tool-index-card" aria-labelledby="calculatorHeading">
+        <h2 id="calculatorHeading">Tillgängliga undersidor</h2>
+        <p id="meta" class="meta"></p>
+        <p id="updatedAt" class="updated">Senast uppdaterad: 2026-07-21 10:08 (laddar...)</p>
+        <ul id="folderList" class="folder-list"></ul>
+      </section>
+    </main>
 
-		<footer class="site-footer">
-			<p>Created by <a href="https://github.com/pownas" target="_blank" rel="noopener noreferrer">Pownas</a>, 2023-<span id="current-year"></span></p>
-			<p>Built with HTML and CSS. Hosted via <a href="https://github.com/pownas/pownas.se-website" target="_blank" rel="noopener noreferrer">GitHub Pages</a>.</p>
-		</footer>
-	</div>
+    <footer class="site-footer">
+      <p>Created by <a href="https://github.com/pownas" target="_blank" rel="noopener noreferrer">Pownas</a>, 2023-<span id="current-year"></span></p>
+      <p>Built with HTML and CSS. Hosted via <a href="https://github.com/pownas/pownas.se-website" target="_blank" rel="noopener noreferrer">GitHub Pages</a>.</p>
+    </footer>
+  </div>
 
-	<script>
-		const indexPages = [
-			{ name: "Amortering vs investering (v1)", path: "amortering-vs-investering/v1/index.html" },
-			{ name: "Amortering vs investering (v2)", path: "amortering-vs-investering/v2/index.html" },
-			{ name: "Amortering vs investering (v3)", path: "amortering-vs-investering/v3/index.html" },
-			{ name: "Bilkalkylator (v1)", path: "bil/v1/index.html" },
-			{ name: "Bilkalkylator (v2)", path: "bil/v2/index.html" },
-			{ name: "Bilkalkylator (v3)", path: "bil/v3/index.html" },
-			{ name: "Bolån investeringssummering", path: "bolan-invest-summary/index.html" },
-			{ name: "Ekonomivisualisering", path: "ekonomi-visualisering/index.html" },
-			{ name: "Lånekalkylator (v1)", path: "lan/v1/index.html" },
-			{ name: "Lånekalkylator (v2)", path: "lan/v2/index.html" }
-		];
+  <script>
+    const indexPages = [
+      { name: "Amortering vs investering (v1)", path: "amortering-vs-investering/v1/index.html" },
+      { name: "Amortering vs investering (v2)", path: "amortering-vs-investering/v2/index.html" },
+      { name: "Amortering vs investering (v3)", path: "amortering-vs-investering/v3/index.html" },
+      { name: "Bilkalkylator (v1)", path: "bil/v1/index.html" },
+      { name: "Bilkalkylator (v2)", path: "bil/v2/index.html" },
+      { name: "Bilkalkylator (v3)", path: "bil/v3/index.html" },
+      { name: "Bolån investeringssummering", path: "bolan-invest-summary/index.html" },
+      { name: "Ekonomivisualisering", path: "ekonomi-visualisering/index.html" },
+      { name: "Lånekalkylator (v1)", path: "lan/v1/index.html" },
+      { name: "Lånekalkylator (v2)", path: "lan/v2/index.html" }
+    ];
 
-		const listEl = document.getElementById("folderList");
-		const metaEl = document.getElementById("meta");
-		const updatedEl = document.getElementById("updatedAt");
+    const listEl = document.getElementById("folderList");
+    const metaEl = document.getElementById("meta");
+    const updatedEl = document.getElementById("updatedAt");
 
-		function toFolderHref(path) {
-			return "./" + path.replace(/index\.html$/i, "");
-		}
+    function toFolderHref(path) {
+      return "./" + path.replace(/index\.html$/i, "");
+    }
 
-		function renderLinks(pages) {
-			const sorted = [...pages].sort((a, b) => a.name.localeCompare(b.name, "sv"));
+    function renderLinks(pages) {
+      const sorted = [...pages].sort((a, b) => a.name.localeCompare(b.name, "sv"));
 
-			metaEl.textContent = sorted.length + " undersidor hittades.";
+      metaEl.textContent = sorted.length + " undersidor hittades.";
 
-			const fragment = document.createDocumentFragment();
+      const fragment = document.createDocumentFragment();
 
-			sorted.forEach((page) => {
-				const li = document.createElement("li");
-				li.className = "folder-item";
+      sorted.forEach((page) => {
+        const li = document.createElement("li");
+        li.className = "folder-item";
 
-				const textWrap = document.createElement("div");
-				const name = document.createElement("div");
-				const rawPath = document.createElement("div");
+        const textWrap = document.createElement("div");
+        const name = document.createElement("div");
+        const rawPath = document.createElement("div");
 
-				name.className = "folder-name";
-				name.textContent = page.name;
+        name.className = "folder-name";
+        name.textContent = page.name;
 
-				rawPath.className = "folder-path";
-				rawPath.textContent = page.path;
+        rawPath.className = "folder-path";
+        rawPath.textContent = page.path;
 
-				textWrap.appendChild(name);
-				textWrap.appendChild(rawPath);
+        textWrap.appendChild(name);
+        textWrap.appendChild(rawPath);
 
-				const link = document.createElement("a");
-				link.className = "open-link";
-				link.href = toFolderHref(page.path);
-				link.textContent = "Öppna";
+        const link = document.createElement("a");
+        link.className = "open-link";
+        link.href = toFolderHref(page.path);
+        link.textContent = "Öppna";
 
-				li.appendChild(textWrap);
-				li.appendChild(link);
-				fragment.appendChild(li);
-			});
+        li.appendChild(textWrap);
+        li.appendChild(link);
+        fragment.appendChild(li);
+      });
 
-			listEl.appendChild(fragment);
-		}
+      listEl.appendChild(fragment);
+    }
 
-		function formatDateForSv(dateValue) {
-			const date = new Date(dateValue);
+    function formatDateForSv(dateValue) {
+      const date = new Date(dateValue);
 
-			if (Number.isNaN(date.getTime())) {
-				return null;
-			}
+      if (Number.isNaN(date.getTime())) {
+        return null;
+      }
 
-			return new Intl.DateTimeFormat("sv-SE", {
-				year: "numeric",
-				month: "2-digit",
-				day: "2-digit",
-				hour: "2-digit",
-				minute: "2-digit"
-			}).format(date);
-		}
+      return new Intl.DateTimeFormat("sv-SE", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      }).format(date);
+    }
 
-		async function renderLastUpdated() {
-			let sourceValue = "";
+    async function renderLastUpdated() {
+      let sourceValue = "";
 
-			try {
-				const response = await fetch(window.location.href, {
-					method: "HEAD",
-					cache: "no-store"
-				});
+      try {
+        const response = await fetch(window.location.href, {
+          method: "HEAD",
+          cache: "no-store"
+        });
 
-				if (response.ok) {
-					sourceValue = response.headers.get("last-modified") || "";
-				}
-			} catch (error) {
-				// Some static setups block HEAD/CORS; fallback below handles this.
-			}
+        if (response.ok) {
+          sourceValue = response.headers.get("last-modified") || "";
+        }
+      } catch (error) {
+        // Some static setups block HEAD/CORS; fallback below handles this.
+      }
 
-			if (!sourceValue) {
-				sourceValue = document.lastModified || "";
-			}
+      if (!sourceValue) {
+        sourceValue = document.lastModified || "";
+      }
 
-			const formatted = formatDateForSv(sourceValue);
-			updatedEl.textContent = formatted
-				? "Senast uppdaterad: " + formatted
-				: "Senast uppdaterad: okand";
-		}
+      const formatted = formatDateForSv(sourceValue);
+      updatedEl.textContent = formatted
+        ? "Senast uppdaterad: " + formatted
+        : "Senast uppdaterad: okänd";
+    }
 
-		(function() {
-			const themeToggle = document.getElementById("theme-toggle");
-			const systemDarkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    (function() {
+      const themeToggle = document.getElementById("theme-toggle");
+      const systemDarkQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
-			function syncThemeWithSystem(e) {
-				themeToggle.checked = e.matches;
-			}
+      function syncThemeWithSystem(e) {
+        themeToggle.checked = e.matches;
+      }
 
-			syncThemeWithSystem(systemDarkQuery);
+      syncThemeWithSystem(systemDarkQuery);
 
-			try {
-				systemDarkQuery.addEventListener("change", syncThemeWithSystem);
-			} catch (err) {
-				systemDarkQuery.addListener(syncThemeWithSystem);
-			}
-		})();
+      try {
+        systemDarkQuery.addEventListener("change", syncThemeWithSystem);
+      } catch (err) {
+        systemDarkQuery.addListener(syncThemeWithSystem);
+      }
+    })();
 
-		document.getElementById("current-year").textContent = new Date().getFullYear();
-		renderLinks(indexPages);
-		renderLastUpdated();
-	</script>
+    document.getElementById("current-year").textContent = new Date().getFullYear();
+    renderLinks(indexPages);
+    renderLastUpdated();
+  </script>
 </body>
 </html>
