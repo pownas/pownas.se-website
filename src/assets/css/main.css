@@ -1,39 +1,262 @@
+/* ==========================================================================
+1. MODERN VARIABLE SETUP & WCAG COMPLIANT THEMES
+========================================================================== */
+:root {
+--bg: #f5f7fb;
+--ink: #0f172a;
+--muted: #475569; /* WCAG AA godkänd grå för ljus bakgrund */
+--surface: #ffffff;
+--line: #d8dfeb;
+--accent: #0284c7;
+--hero-bg: linear-gradient(120deg, rgba(255, 255, 255, 0.98) 5%, rgba(240, 247, 255, 0.92) 60%);
+--shadow: rgba(15, 23, 42, 0.04);
+
+--hover-bg: rgba(2, 132, 199, 0.06);
+--hover-glow: rgba(2, 132, 199, 0.12);
+}
+
+/* Aktiveras dynamiskt via kryssrutan (som styrs av både klick och webbläsarens API) */
+html:has(#theme-toggle:checked) {
+--bg: #090d16;
+--ink: #f9fafb; /* Högsta kontrast för text i dark mode */
+--muted: #9ca3af; /* WCAG AA godkänd grå för mörk bakgrund */
+--surface: #111827;
+--line: #1f2937;
+--accent: #38bdf8;
+--hero-bg: linear-gradient(120deg, #161f30 0%, #111827 100%);
+--shadow: rgba(0, 0, 0, 0.3);
+
+--hover-bg: rgba(56, 189, 248, 0.08);
+--hover-glow: rgba(56, 189, 248, 0.2);
+}
+
+/* ==========================================================================
+2. BASE RESET & SHELL
+========================================================================== */
+* { box-sizing: border-box; }
+
 body {
-    text-rendering: optimizeLegibility;
-    text-align: center;
+margin: 0;
+color: var(--ink);
+background-color: var(--bg);
+background-image: radial-gradient(circle at 90% 0%, var(--hover-bg) 0%, transparent 45%);
+font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+text-rendering: optimizeLegibility;
+-webkit-font-smoothing: antialiased;
+transition: background-color 0.3s, color 0.3s;
 }
 
-img {
-    pointer-events: none; /* Removes Microsoft Edge - Bing search on images */
+.page-shell {
+width: min(100% - 2rem, 900px);
+margin-block: min(3rem, 6vh);
+margin-inline: auto;
+display: flex;
+flex-direction: column;
+gap: 1.25rem;
 }
 
-a, a:active, a:visited {
-    color: #0057e2;
-    text-decoration: none;
+.sr-only {
+position: absolute;
+width: 1px;
+height: 1px;
+padding: 0;
+margin: -1px;
+overflow: hidden;
+clip: rect(0, 0, 0, 0);
+border: 0;
 }
 
-a:hover {
-    color: #fff;
+/* ==========================================================================
+3. HERO COMPONENT (KOMPAKT & BRED TEXT)
+========================================================================== */
+.hero {
+border: 1px solid var(--line);
+border-radius: 20px;
+padding: 1.5rem;
+background: var(--hero-bg);
+box-shadow: 0 15px 35px var(--shadow);
+transition: all 0.3s;
 }
 
-.icon {
-    fill: #0057e2;
+.hero-top {
+display: flex;
+justify-content: space-between;
+align-items: center;
+gap: 1rem;
+flex-wrap: wrap;
 }
 
-.icon:hover {
-    fill: #fff;
+.brand {
+display: inline-flex;
+align-items: center;
+gap: 0.6rem;
+color: var(--ink);
+font-weight: 700;
+font-size: 1.1rem;
+text-decoration: none;
 }
 
-#tagline {
-    font-size: 2rem;
-    margin: 0;
+.theme-btn {
+cursor: pointer;
+padding: 0.4rem 0.75rem;
+border-radius: 99px;
+border: 1px solid var(--line);
+background: var(--surface);
+font-size: 0.85rem;
+user-select: none;
+color: var(--ink);
+transition: background-color 0.2s;
+}
+
+/* Emojin visar vad man byter TILL om man klickar */
+html:has(#theme-toggle:checked) .theme-icon::before { content: "☀️ Light Mode"; }
+html:not(:has(#theme-toggle:checked)) .theme-icon::before { content: "🌙 Dark Mode"; }
+
+.hero-content {
+margin-top: 1rem;
+container-type: inline-size;
+}
+
+.mobile-view {
+display: none;
+}
+
+@container (max-width: 299.98px) {
+.mobile-view {
+    display: inline;
+}
+}
+
+.eyebrow {
+margin: 0;
+text-transform: uppercase;
+letter-spacing: 0.08em;
+font-size: 0.75rem;
+font-weight: 700;
+color: var(--muted);
+}
+
+h1 {
+margin-block: 0.4rem 0.6rem;
+font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+line-height: 1.2;
+font-weight: 800;
+max-width: 100%;
+}
+
+.lead {
+margin: 0;
+max-width: 100%;
+color: var(--muted);
+font-size: 1rem;
+line-height: 1.5;
+}
+
+/* ==========================================================================
+4. CARDS & GRID
+========================================================================== */
+.content-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+gap: 1.25rem;
+}
+
+.card {
+background: var(--surface);
+border: 1px solid var(--line);
+border-radius: 16px;
+padding: 1.5rem;
+box-shadow: 0 10px 25px var(--shadow);
+transition: background-color 0.3s;
 }
 
 h2 {
-    font-size: 1.5rem;
+margin: 0 0 0.75rem 0;
+font-size: 1.15rem;
+font-weight: 700;
 }
 
-#helpline {
-    font-weight: bold;
-    font-size: 1rem;
+/* ==========================================================================
+5. INTERACTIVE LISTS WITH BLURRED HIGHLIGHT
+========================================================================== */
+.interactive-list {
+margin: 0;
+padding: 0;
+list-style: none;
+display: flex;
+flex-direction: column;
+gap: 0.25rem;
 }
+
+.interactive-list a {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0.75rem 0.75rem;
+margin-inline: -0.75rem;
+border-radius: 8px;
+color: var(--ink);
+font-weight: 600;
+font-size: 0.95rem;
+text-decoration: none;
+outline: none;
+transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s, color 0.1s;
+}
+
+.interactive-list li:not(:last-child) a {
+border-bottom: 1px solid var(--line);
+}
+
+.interactive-list li:not(:last-child) a:hover {
+border-bottom-color: transparent;
+}
+
+.interactive-list a:hover,
+.interactive-list a:focus-visible {
+background-color: var(--hover-bg);
+box-shadow: 0 0 16px 2px var(--hover-glow);
+transform: translateX(4px);
+color: var(--ink); /* Säkerställer WCAG-kontrast vid hovring */
+}
+
+.icon-wrapper {
+display: inline-flex;
+align-items: center;
+gap: 0.75rem;
+}
+
+.icon {
+color: var(--accent);
+fill: currentColor;
+flex-shrink: 0;
+}
+
+.arrow-icon {
+color: var(--muted);
+flex-shrink: 0;
+transition: transform 0.2s;
+}
+
+.interactive-list a:hover .arrow-icon,
+.interactive-list a:focus-visible .arrow-icon {
+transform: translateX(3px);
+color: var(--accent);
+}
+
+/* ==========================================================================
+6. FOOTER
+========================================================================== */
+.site-footer {
+border-top: 1px solid var(--line);
+margin-top: 1rem;
+padding-block: 1.25rem 0;
+display: flex;
+justify-content: space-between;
+gap: 1rem;
+flex-wrap: wrap;
+color: var(--muted);
+font-size: 0.85rem;
+}
+
+.site-footer p { margin: 0; }
+.site-footer a { color: var(--ink); font-weight: 600; text-decoration: underline; }
