@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCO Kalkylator - Biljämförelse med Solceller & V2G/V2H</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-green: #34d399;
+            --accent-purple: #c084fc;
+            --accent-orange: #fb923c;
+            --accent-yellow: #facc15;
+            --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #38bdf8, #facc15, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        /* Controls / Top bar */
+        .global-controls {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .control-group input[type="number"], .control-group select {
+            padding: 8px 12px;
+            background: #0f172a;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.95rem;
+        }
+
+        .checkbox-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+            background: #0f172a;
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-label:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-blue);
+            cursor: pointer;
+        }
+
+        .btn {
+            background-color: var(--accent-blue);
+            color: #0f172a;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        /* Smart Energy Panel Info */
+        .energy-info-banner {
+            background: rgba(250, 204, 21, 0.08);
+            border: 1px solid rgba(250, 204, 21, 0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 0.88rem;
+            color: #fef08a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Chart Section - iOS & WebKit Preview Safe */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        @media (min-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        .chart-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 380px;
+        }
+
+        .chart-card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            color: var(--text-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 260px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            gap: 12px;
+            padding-top: 20px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        /* Summary Cards */
+        .summary-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .summary-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .summary-item {
+            padding: 12px;
+            background: #0f172a;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .summary-item h3 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .summary-metrics {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .summary-metrics .highlight {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        /* Car Input Grid */
+        .cars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .car-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .car-header {
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .car-header input.car-title {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            width: 80%;
+        }
+
+        .car-header input.car-title:focus {
+            outline: 1px solid var(--accent-blue);
+            background: #0f172a;
+            border-radius: 4px;
+            padding: 2px 6px;
+        }
+
+        .car-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-blue);
+            margin-top: 8px;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-row label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            flex: 1;
+        }
+
+        .form-row .input-wrapper {
+            position: relative;
+            width: 130px;
+        }
+
+        .form-row input {
+            width: 100%;
+            padding: 6px 10px;
+            background: #0f172a;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.9rem;
+            text-align: right;
+        }
+
+        .form-row input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .unit {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .form-row input.has-unit {
+            padding-right: 35px;
+        }
+
+        /* Breakdown Table */
+        .table-responsive {
+            margin-top: 30px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        td {
+            font-size: 0.95rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .total-row td {
+            font-weight: 700;
+            color: #fff;
+            font-size: 1.05rem;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .savings-row td {
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        /* SVG Bar Chart Styling */
+        .bar-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            height: 100%;
+            gap: 8px;
+        }
+
+        .bar-stack {
+            width: 100%;
+            max-width: 50px;
+            background: #0f172a;
+            border-radius: 6px 6px 0 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column-reverse;
+            min-height: 4px;
+        }
+
+        .bar-segment {
+            width: 100%;
+            transition: height 0.3s ease;
+        }
+
+        .bar-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100px;
+        }
+
+        .bar-value {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .btn-remove {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .btn-remove:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        @media screen and (-webkit-min-device-pixel-ratio: 0) {
+            .control-group input, 
+            .form-row input, 
+            .control-group select,
+            .form-row select {
+                font-size: 16px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>TCO Kalkylator - Biljämförelse</h1>
+        <p>Inklusive smart styrning med solceller, elområden och V2G/V2H (Vehicle-to-Grid / Vehicle-to-Home)</p>
+    </header>
+
+    <div class="global-controls">
+        <div class="controls-row">
+            <div class="control-group">
+                <label for="global-years">Innehavstid:</label>
+                <input type="number" id="global-years" value="3" min="1" max="10" step="1" style="width: 75px;">
+                <span style="color: var(--text-muted); font-size: 0.9rem;">år</span>
+            </div>
+
+            <div class="control-group">
+                <label for="global-distance">Körsträcka:</label>
+                <input type="number" id="global-distance" value="1500" min="100" max="10000" step="100" style="width: 90px;">
+                <span style="color: var(--text-muted); font-size: 0.9rem;">mil/år</span>
+            </div>
+
+            <div class="control-group">
+                <label for="global-zone">Elområde:</label>
+                <select id="global-zone">
+                    <option value="SE1">SE1 (Luleå)</option>
+                    <option value="SE2">SE2 (Sundsvall)</option>
+                    <option value="SE3" selected>SE3 (Stockholm / Örebro)</option>
+                    <option value="SE4">SE4 (Malmö)</option>
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn" id="add-car-btn" onclick="addCar()">+ Lägg till bil</button>
+                <button class="btn" style="background:#475569; color:#fff;" onclick="resetDefaults()">Återställ</button>
+            </div>
+        </div>
+
+        <div class="controls-row" style="border-top: 1px solid var(--card-border); padding-top: 14px;">
+            <label class="checkbox-label">
+                <input type="checkbox" id="has-solar">
+                ☀️ Har solceller på huset
+            </label>
+
+            <label class="checkbox-label">
+                <input type="checkbox" id="has-v2g">
+                ⚡ Har V2G / V2H (Laddare + Elbil stöder tvåvägsladdning)
+            </label>
+        </div>
+
+        <div class="energy-info-banner" id="energy-banner">
+            ℹ️ <strong>Standardläge:</strong> Baserat på elområde SE3. Kryssa i solceller eller V2G/V2H ovan för att se effekten på elbilar.
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="chart-card">
+            <h2>
+                <span>Månadskostnad uppdelad per kategori</span>
+                <span style="font-size:0.85rem; font-weight:normal; color:var(--text-muted);">SEK / månad</span>
+            </h2>
+            <div class="chart-container" id="chart-container">
+                <!-- Dynamic Bar Chart -->
+            </div>
+            <div class="legend">
+                <div class="legend-item"><div class="legend-color" style="background:#ef4444;"></div>Värdeminskning / Leasing</div>
+                <div class="legend-item"><div class="legend-color" style="background:#f59e0b;"></div>Finansiering/Ränta</div>
+                <div class="legend-item"><div class="legend-color" style="background:#10b981;"></div>Drivmedel/El (Netto)</div>
+                <div class="legend-item"><div class="legend-color" style="background:#3b82f6;"></div>Skatt & Försäkring</div>
+                <div class="legend-item"><div class="legend-color" style="background:#8b5cf6;"></div>Service, Däck & Övrigt</div>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <h2 style="font-size: 1.2rem; margin-bottom: 16px;">Sammanfattning</h2>
+            <div class="summary-list" id="summary-list">
+                <!-- Dynamic Summary Items -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Inputs for Cars -->
+    <div class="cars-grid" id="cars-grid">
+        <!-- Dynamic Car Cards -->
+    </div>
+
+    <!-- Detailed Breakdown Table -->
+    <div class="table-responsive">
+        <h2 style="font-size: 1.2rem; margin-bottom: 16px;">Detaljerad kostnadsspecifikation</h2>
+        <table>
+            <thead>
+                <tr id="table-header">
+                    <th>Kostnadspost (SEK/mån)</th>
+                    <!-- Dynamic Headers -->
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- Dynamic Table Rows -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const COLORS = ['#38bdf8', '#34d399', '#c084fc', '#fb923c'];
+
+    const ZONE_PRICES = {
+        SE1: { basePrice: 1.50, solarDiscountRatio: 0.50, v2gMonthlySavings: 280 },
+        SE2: { basePrice: 1.50, solarDiscountRatio: 0.50, v2gMonthlySavings: 280 },
+        SE3: { basePrice: 2.20, solarDiscountRatio: 0.55, v2gMonthlySavings: 450 },
+        SE4: { basePrice: 2.70, solarDiscountRatio: 0.60, v2gMonthlySavings: 600 }
+    };
+
+    let defaultCars = [
+        {
+            id: 1,
+            name: "Behåll nuvarande bensinbil",
+            isEV: false,
+            price: 150000,
+            residualVal: 90000,
+            isLeasing: false,
+            leasingFee: 0,
+            interestRate: 0,
+            loanPercent: 0,
+            consumption: 0.65,
+            fuelPrice: 18.5,
+            tax: 2200,
+            insurance: 450,
+            service: 4500,
+            tires: 2500,
+            other: 300
+        },
+        {
+            id: 2,
+            name: "Ny elbil (Privatleasing)",
+            isEV: true,
+            price: 0,
+            residualVal: 0,
+            isLeasing: true,
+            leasingFee: 4000,
+            interestRate: 0,
+            loanPercent: 0,
+            consumption: 1.8,
+            fuelPrice: 2.20,
+            tax: 360,
+            insurance: 600,
+            service: 1500,
+            tires: 3000,
+            other: 300
+        },
+        {
+            id: 3,
+            name: "Begagnad elbil (Kontant)",
+            isEV: true,
+            price: 250000,
+            residualVal: 150000,
+            isLeasing: false,
+            leasingFee: 0,
+            interestRate: 0,
+            loanPercent: 0,
+            consumption: 1.8,
+            fuelPrice: 2.20,
+            tax: 360,
+            insurance: 650,
+            service: 2500,
+            tires: 3000,
+            other: 300
+        }
+    ];
+
+    let cars = JSON.parse(JSON.stringify(defaultCars));
+
+    function init() {
+        attachGlobalListeners();
+        updateElZone();
+    }
+
+    function attachGlobalListeners() {
+        const yearsEl = document.getElementById('global-years');
+        const distEl = document.getElementById('global-distance');
+        const zoneEl = document.getElementById('global-zone');
+        const solarEl = document.getElementById('has-solar');
+        const v2gEl = document.getElementById('has-v2g');
+
+        if (yearsEl) yearsEl.addEventListener('change', calculateAll);
+        if (distEl) distEl.addEventListener('change', calculateAll);
+        if (zoneEl) zoneEl.addEventListener('change', updateElZone);
+        if (solarEl) solarEl.addEventListener('change', calculateAll);
+        if (v2gEl) v2gEl.addEventListener('change', calculateAll);
+    }
+
+    function updateElZone() {
+        const zone = document.getElementById('global-zone').value;
+        const priceObj = ZONE_PRICES[zone];
+
+        cars.forEach(car => {
+            if (car.isEV) {
+                car.fuelPrice = priceObj.basePrice;
+            }
+        });
+
+        renderCars();
+        calculateAll();
+    }
+
+    function addCar() {
+        if (cars.length >= 4) {
+            alert("Du kan jämföra maximalt 4 bilar samtidigt.");
+            return;
+        }
+        const newId = Date.now();
+        const currentZone = document.getElementById('global-zone').value;
+        cars.push({
+            id: newId,
+            name: `Bil ${cars.length + 1}`,
+            isEV: true,
+            price: 300000,
+            residualVal: 180000,
+            isLeasing: false,
+            leasingFee: 0,
+            interestRate: 4.5,
+            loanPercent: 80,
+            consumption: 1.8,
+            fuelPrice: ZONE_PRICES[currentZone].basePrice,
+            tax: 360,
+            insurance: 550,
+            service: 3000,
+            tires: 3000,
+            other: 300
+        });
+        renderCars();
+        calculateAll();
+    }
+
+    function removeCar(id) {
+        if (cars.length <= 2) {
+            alert("Du måste ha minst 2 bilar för att jämföra.");
+            return;
+        }
+        cars = cars.filter(c => c.id !== id);
+        renderCars();
+        calculateAll();
+    }
+
+    function resetDefaults() {
+        cars = JSON.parse(JSON.stringify(defaultCars));
+        document.getElementById('global-years').value = 3;
+        document.getElementById('global-distance').value = 1500;
+        document.getElementById('global-zone').value = 'SE3';
+        document.getElementById('has-solar').checked = false;
+        document.getElementById('has-v2g').checked = false;
+        updateElZone();
+    }
+
+    function updateCarValue(id, key, value) {
+        const car = cars.find(c => c.id === id);
+        if (car) {
+            if (key === 'isLeasing') {
+                car[key] = value === 'true';
+            } else if (key === 'isEV') {
+                car[key] = value === 'true';
+                if (car.isEV) {
+                    const currentZone = document.getElementById('global-zone').value;
+                    car.fuelPrice = ZONE_PRICES[currentZone].basePrice;
+                    car.consumption = 1.8;
+                } else {
+                    car.fuelPrice = 18.5;
+                    car.consumption = 0.65;
+                }
+            } else {
+                car[key] = parseFloat(value) || 0;
+            }
+            renderCars();
+            calculateAll();
+        }
+    }
+
+    function updateCarName(id, value) {
+        const car = cars.find(c => c.id === id);
+        if (car) {
+            car.name = value;
+            calculateAll();
+        }
+    }
+
+    function renderCars() {
+        const grid = document.getElementById('cars-grid');
+        grid.innerHTML = '';
+
+        cars.forEach((car, index) => {
+            const carCard = document.createElement('div');
+            carCard.className = 'car-card';
+            carCard.style.borderColor = COLORS[index % COLORS.length];
+
+            const purchasingSection = car.isLeasing ? `
+                <div class="form-row">
+                    <label>Leasingavgift</label>
+                    <div class="input-wrapper">
+                        <input type="number" class="has-unit" value="${car.leasingFee}" oninput="updateCarValue(${car.id}, 'leasingFee', this.value)">
+                        <span class="unit">kr/mån</span>
+                    </div>
+                </div>
+            ` : `
+                <div class="form-row">
+                    <label>Nuvarande värde / Inköp</label>
+                    <div class="input-wrapper">
+                        <input type="number" class="has-unit" value="${car.price}" oninput="updateCarValue(${car.id}, 'price', this.value)">
+                        <span class="unit">kr</span>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label>Restvärde (om ${document.getElementById('global-years')?.value || 3} år)</label>
+                    <div class="input-wrapper">
+                        <input type="number" class="has-unit" value="${car.residualVal}" oninput="updateCarValue(${car.id}, 'residualVal', this.value)">
+                        <span class="unit">kr</span>
+                    </div>
+                </div>
+            `;
+
+            const financingSection = car.isLeasing ? '' : `
+                <div class="section-title">Finansiering</div>
+                <div class="form-row">
+                    <label>Låneandel (0 = kontant)</label>
+                    <div class="input-wrapper">
+                        <input type="number" class="has-unit" value="${car.loanPercent || 0}" oninput="updateCarValue(${car.id}, 'loanPercent', this.value)">
+                        <span class="unit">%</span>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label>Ränta</label>
+                    <div class="input-wrapper">
+                        <input type="number" step="0.1" class="has-unit" value="${car.interestRate || 0}" oninput="updateCarValue(${car.id}, 'interestRate', this.value)">
+                        <span class="unit">%</span>
+                    </div>
+                </div>
+            `;
+
+            carCard.innerHTML = `
+                <div class="car-header">
+                    <input type="text" class="car-title" value="${car.name}" onchange="updateCarName(${car.id}, this.value)">
+                    ${cars.length > 2 ? `<button class="btn-remove" onclick="removeCar(${car.id})" title="Ta bort bil">✕</button>` : ''}
+                </div>
+                <div class="car-body">
+                    <div class="form-row">
+                        <label>Drivlinetyp</label>
+                        <select onchange="updateCarValue(${car.id}, 'isEV', this.value)" style="background:#0f172a; color:#fff; border:1px solid var(--card-border); padding:4px 8px; border-radius:6px;">
+                            <option value="true" ${car.isEV ? 'selected' : ''}>⚡ Elbil</option>
+                            <option value="false" ${!car.isEV ? 'selected' : ''}>⛽ Bensin / Diesel</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <label>Finansieringstyp</label>
+                        <select onchange="updateCarValue(${car.id}, 'isLeasing', this.value)" style="background:#0f172a; color:#fff; border:1px solid var(--card-border); padding:4px 8px; border-radius:6px;">
+                            <option value="false" ${!car.isLeasing ? 'selected' : ''}>Köp / Äga</option>
+                            <option value="true" ${car.isLeasing ? 'selected' : ''}>Privatleasing</option>
+                        </select>
+                    </div>
+
+                    <div class="section-title">${car.isLeasing ? 'Leasingavtal' : 'Värde & Värdeminskning'}</div>
+                    ${purchasingSection}
+
+                    ${financingSection}
+
+                    <div class="section-title">Drivmedel / Energi</div>
+                    <div class="form-row">
+                        <label>Förbrukning</label>
+                        <div class="input-wrapper">
+                            <input type="number" step="0.01" class="has-unit" value="${car.consumption}" oninput="updateCarValue(${car.id}, 'consumption', this.value)">
+                            <span class="unit">${car.isEV ? 'kWh/mil' : 'l/mil'}</span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label>${car.isEV ? 'Elpris (köpt el)' : 'Bensinpris'}</label>
+                        <div class="input-wrapper">
+                            <input type="number" step="0.1" class="has-unit" value="${car.fuelPrice}" oninput="updateCarValue(${car.id}, 'fuelPrice', this.value)">
+                            <span class="unit">${car.isEV ? 'kr/kWh' : 'kr/l'}</span>
+                        </div>
+                    </div>
+
+                    <div class="section-title">Fasta & Rörliga kostnader</div>
+                    <div class="form-row">
+                        <label>Fordonsskatt</label>
+                        <div class="input-wrapper">
+                            <input type="number" class="has-unit" value="${car.tax}" oninput="updateCarValue(${car.id}, 'tax', this.value)">
+                            <span class="unit">kr/år</span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label>Försäkring</label>
+                        <div class="input-wrapper">
+                            <input type="number" class="has-unit" value="${car.insurance}" oninput="updateCarValue(${car.id}, 'insurance', this.value)">
+                            <span class="unit">kr/mån</span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label>Service & Rep.</label>
+                        <div class="input-wrapper">
+                            <input type="number" class="has-unit" value="${car.service}" oninput="updateCarValue(${car.id}, 'service', this.value)">
+                            <span class="unit">kr/år</span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label>Däckslitage</label>
+                        <div class="input-wrapper">
+                            <input type="number" class="has-unit" value="${car.tires}" oninput="updateCarValue(${car.id}, 'tires', this.value)">
+                            <span class="unit">kr/år</span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label>Övrigt (Parkering/Tull)</label>
+                        <div class="input-wrapper">
+                            <input type="number" class="has-unit" value="${car.other}" oninput="updateCarValue(${car.id}, 'other', this.value)">
+                            <span class="unit">kr/mån</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(carCard);
+        });
+
+        document.getElementById('add-car-btn').style.display = cars.length >= 4 ? 'none' : 'inline-flex';
+    }
+
+    function calculateAll() {
+        const years = parseFloat(document.getElementById('global-years').value) || 3;
+        const distancePerYear = parseFloat(document.getElementById('global-distance').value) || 1500;
+        const currentZone = document.getElementById('global-zone').value;
+        const hasSolar = document.getElementById('has-solar').checked;
+        const hasV2G = document.getElementById('has-v2g').checked;
+
+        const zoneData = ZONE_PRICES[currentZone];
+        const totalMonths = years * 12;
+
+        const banner = document.getElementById('energy-banner');
+        let bannerTexts = [`📍 <strong>Elområde:</strong> ${currentZone}`];
+        if (hasSolar) bannerTexts.push("☀️ <strong>Solceller:</strong> Ca 50–60% av laddning sker med egengenererad el (kraftigt sänkt elkostnad).");
+        if (hasV2G) bannerTexts.push(`⚡ <strong>V2G/V2H:</strong> Elbilen agerar husbatteri/arbitrage (+${zoneData.v2gMonthlySavings} kr/mån i intäkt/besparing).`);
+        banner.innerHTML = bannerTexts.join("<br>");
+
+        const results = cars.map((car, idx) => {
+            let depPerMonth = 0;
+            let interestPerMonth = 0;
+
+            if (car.isLeasing) {
+                depPerMonth = car.leasingFee;
+            } else {
+                const totalDepreciation = Math.max(0, car.price - car.residualVal);
+                depPerMonth = totalDepreciation / totalMonths;
+
+                const loanAmount = car.price * ((car.loanPercent || 0) / 100);
+                if (loanAmount > 0) {
+                    const avgLoan = (loanAmount + Math.max(0, loanAmount - totalDepreciation)) / 2;
+                    const interestPerYear = avgLoan * ((car.interestRate || 0) / 100);
+                    interestPerMonth = interestPerYear / 12;
+                }
+            }
+
+            let effectiveFuelPrice = car.fuelPrice;
+            let solarSavingsPerMonth = 0;
+            let v2gSavingsPerMonth = 0;
+
+            if (car.isEV) {
+                if (hasSolar) {
+                    effectiveFuelPrice = car.fuelPrice * (1 - zoneData.solarDiscountRatio);
+                    const normalFuelCostYear = distancePerYear * car.consumption * car.fuelPrice;
+                    const solarFuelCostYear = distancePerYear * car.consumption * effectiveFuelPrice;
+                    solarSavingsPerMonth = (normalFuelCostYear - solarFuelCostYear) / 12;
+                }
+
+                if (hasV2G) {
+                    v2gSavingsPerMonth = zoneData.v2gMonthlySavings;
+                }
+            }
+
+            const rawFuelCostPerYear = distancePerYear * car.consumption * effectiveFuelPrice;
+            const fuelPerMonth = Math.max(0, (rawFuelCostPerYear / 12) - v2gSavingsPerMonth);
+
+            const taxPerMonth = car.tax / 12;
+            const insurancePerMonth = car.insurance;
+
+            const servicePerMonth = car.service / 12;
+            const tiresPerMonth = car.tires / 12;
+            const otherPerMonth = car.other;
+            const maintenanceOtherPerMonth = servicePerMonth + tiresPerMonth + otherPerMonth;
+
+            const totalPerMonth = depPerMonth + interestPerMonth + fuelPerMonth + taxPerMonth + insurancePerMonth + maintenanceOtherPerMonth;
+            const totalCostSum = totalPerMonth * totalMonths;
+            const costPerMil = totalPerMonth / (distancePerYear / 12);
+
+            return {
+                car,
+                color: COLORS[idx % COLORS.length],
+                depPerMonth,
+                interestPerMonth,
+                fuelPerMonth,
+                taxInsurancePerMonth: taxPerMonth + insurancePerMonth,
+                taxPerMonth,
+                insurancePerMonth,
+                maintenanceOtherPerMonth,
+                servicePerMonth,
+                tiresPerMonth,
+                otherPerMonth,
+                totalPerMonth,
+                totalCostSum,
+                costPerMil,
+                solarSavingsPerMonth,
+                v2gSavingsPerMonth
+            };
+        });
+
+        renderChart(results);
+        renderSummary(results, years, distancePerYear);
+        renderTable(results, hasSolar, hasV2G);
+    }
+
+    function renderChart(results) {
+        const container = document.getElementById('chart-container');
+        container.innerHTML = '';
+
+        const maxTotal = Math.max(...results.map(r => r.totalPerMonth), 1);
+
+        results.forEach(r => {
+            const group = document.createElement('div');
+            group.className = 'bar-group';
+
+            const heightPercent = (r.totalPerMonth / (maxTotal * 1.15)) * 100;
+
+            const depH = (r.depPerMonth / r.totalPerMonth) * 100;
+            const intH = (r.interestPerMonth / r.totalPerMonth) * 100;
+            const fuelH = (r.fuelPerMonth / r.totalPerMonth) * 100;
+            const taxInsH = (r.taxInsurancePerMonth / r.totalPerMonth) * 100;
+            const maintH = (r.maintenanceOtherPerMonth / r.totalPerMonth) * 100;
+
+            const depTitle = r.car.isLeasing ? `Leasingavgift: ${Math.round(r.depPerMonth)} kr/mån` : `Värdeminskning: ${Math.round(r.depPerMonth)} kr/mån`;
+
+            group.innerHTML = `
+                <div class="bar-value">${Math.round(r.totalPerMonth).toLocaleString('sv-SE')} kr</div>
+                <div class="bar-stack" style="height: ${heightPercent}%;">
+                    <div class="bar-segment" style="height: ${depH}%; background: #ef4444;" title="${depTitle}"></div>
+                    <div class="bar-segment" style="height: ${intH}%; background: #f59e0b;" title="Ränta: ${Math.round(r.interestPerMonth)} kr/mån"></div>
+                    <div class="bar-segment" style="height: ${fuelH}%; background: #10b981;" title="Drivmedel/El (Netto): ${Math.round(r.fuelPerMonth)} kr/mån"></div>
+                    <div class="bar-segment" style="height: ${taxInsH}%; background: #3b82f6;" title="Skatt & Försäkring: ${Math.round(r.taxInsurancePerMonth)} kr/mån"></div>
+                    <div class="bar-segment" style="height: ${maintH}%; background: #8b5cf6;" title="Service/Däck/Övrigt: ${Math.round(r.maintenanceOtherPerMonth)} kr/mån"></div>
+                </div>
+                <div class="bar-label" title="${r.car.name}">${r.car.name}</div>
+            `;
+            container.appendChild(group);
+        });
+    }
+
+    function renderSummary(results, years, distancePerYear) {
+        const list = document.getElementById('summary-list');
+        list.innerHTML = '';
+
+        let cheapestIdx = 0;
+        let minCost = results[0].totalPerMonth;
+        results.forEach((r, idx) => {
+            if (r.totalPerMonth < minCost) {
+                minCost = r.totalPerMonth;
+                cheapestIdx = idx;
+            }
+        });
+
+        results.forEach((r, idx) => {
+            const isCheapest = idx === cheapestIdx;
+            const item = document.createElement('div');
+            item.className = 'summary-item';
+            item.style.borderColor = r.color;
+
+            let extraBenefitHtml = '';
+            if (r.solarSavingsPerMonth > 0 || r.v2gSavingsPerMonth > 0) {
+                const totalExtra = Math.round(r.solarSavingsPerMonth + r.v2gSavingsPerMonth);
+                extraBenefitHtml = `<div style="font-size:0.75rem; color:var(--accent-green); margin-top:4px;">
+                    ✨ Energibesparing: -${totalExtra} kr/mån
+                </div>`;
+            }
+
+            item.innerHTML = `
+                <div style="display:flex; justify-between; align-items:center;">
+                    <h3 style="color:${r.color}; font-size:0.95rem;">${r.car.name} ${isCheapest ? '<span style="font-size:0.7rem; background:#10b981; color:#000; padding:2px 6px; border-radius:4px; margin-left:6px;">LÄGST TCO</span>' : ''}</h3>
+                </div>
+                <div class="summary-metrics" style="margin-top:8px;">
+                    <div>
+                        <div>Totalkostnad / mån:</div>
+                        <div class="highlight">${Math.round(r.totalPerMonth).toLocaleString('sv-SE')} kr/mån</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div>Milersättning (TCO):</div>
+                        <div class="highlight" style="color:var(--accent-blue);">${r.costPerMil.toFixed(2)} kr/mil</div>
+                    </div>
+                </div>
+                ${extraBenefitHtml}
+                <div style="font-size:0.8rem; color:var(--text-muted); margin-top:6px;">
+                    Totalt över ${years} år (${(years * distancePerYear).toLocaleString('sv-SE')} mil): <strong>${Math.round(r.totalCostSum).toLocaleString('sv-SE')} kr</strong>
+                </div>
+            `;
+            list.appendChild(item);
+        });
+    }
+
+    function renderTable(results, hasSolar, hasV2G) {
+        const header = document.getElementById('table-header');
+        const body = document.getElementById('table-body');
+
+        header.innerHTML = '<th>Kostnadspost (SEK/mån)</th>' + results.map(r => `<th style="color:${r.color}">${r.car.name}</th>`).join('');
+
+        const rows = [
+            { label: "Värdeminskning / Leasingavgift", key: "depPerMonth" },
+            { label: "Finansiering (Ränta)", key: "interestPerMonth" },
+            { label: "Drivmedel / Energi (Netto)", key: "fuelPerMonth" },
+            { label: "Fordonsskatt", key: "taxPerMonth" },
+            { label: "Försäkring", key: "insurancePerMonth" },
+            { label: "Service & Reparation", key: "servicePerMonth" },
+            { label: "Däckslitage", key: "tiresPerMonth" },
+            { label: "Övrigt (Parkering/Tull)", key: "otherPerMonth" },
+        ];
+
+        let bodyHtml = rows.map(row => {
+            return `<tr>
+                <td>${row.label}</td>
+                ${results.map(r => `<td>${Math.round(r[row.key]).toLocaleString('sv-SE')} kr</td>`).join('')}
+            </tr>`;
+        }).join('');
+
+        if (hasSolar) {
+            bodyHtml += `<tr class="savings-row">
+                <td>☀️ Solcellsrabatt på laddning</td>
+                ${results.map(r => `<td>-${Math.round(r.solarSavingsPerMonth).toLocaleString('sv-SE')} kr/mån</td>`).join('')}
+            </tr>`;
+        }
+
+        if (hasV2G) {
+            bodyHtml += `<tr class="savings-row">
+                <td>⚡ V2G/V2H Husbatteri-intäkt</td>
+                ${results.map(r => `<td>-${Math.round(r.v2gSavingsPerMonth).toLocaleString('sv-SE')} kr/mån</td>`).join('')}
+            </tr>`;
+        }
+
+        bodyHtml += `<tr class="total-row">
+            <td>TOTAL MÅNADSKOSTNAD</td>
+            ${results.map(r => `<td>${Math.round(r.totalPerMonth).toLocaleString('sv-SE')} kr/mån</td>`).join('')}
+        </tr>`;
+
+        bodyHtml += `<tr class="total-row" style="background: rgba(56, 189, 248, 0.05);">
+            <td>KOSTNAD PER MIL</td>
+            ${results.map(r => `<td style="color:var(--accent-blue);">${r.costPerMil.toFixed(2)} kr/mil</td>`).join('')}
+        </tr>`;
+
+        body.innerHTML = bodyHtml;
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+</script>
+</body>
+</html>
