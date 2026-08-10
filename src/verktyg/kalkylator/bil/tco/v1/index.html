@@ -157,7 +157,7 @@
             gap: 12px;
         }
 
-        /* Chart Section - iOS & WebKit Preview Safe */
+        /* Chart Section */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -314,7 +314,7 @@
 
         .form-row .input-wrapper {
             position: relative;
-            width: 130px;
+            width: 145px;
         }
 
         .form-row input {
@@ -344,7 +344,7 @@
         }
 
         .form-row input.has-unit {
-            padding-right: 35px;
+            padding-right: 62px;
         }
 
         /* Breakdown Table */
@@ -587,7 +587,7 @@
 </div>
 
 <script>
-    const COLORS = ['#38bdf8', '#34d399', '#c084fc', '#fb923c'];
+    const COLORS = ['#38bdf8', '#34d399', '#c084fc', '#fb923c', '#facc15'];
 
     const ZONE_PRICES = {
         SE1: { basePrice: 1.50, solarDiscountRatio: 0.50, v2gMonthlySavings: 280 },
@@ -650,6 +650,24 @@
             service: 2500,
             tires: 3000,
             other: 300
+        },
+        {
+            id: 4,
+            name: "Ny elbil (Kontant ~300k)",
+            isEV: true,
+            price: 300000,
+            residualVal: 180000,
+            isLeasing: false,
+            leasingFee: 0,
+            interestRate: 0,
+            loanPercent: 0,
+            consumption: 1.8,
+            fuelPrice: 2.20,
+            tax: 360,
+            insurance: 650,
+            service: 2000,
+            tires: 3000,
+            other: 300
         }
     ];
 
@@ -689,8 +707,8 @@
     }
 
     function addCar() {
-        if (cars.length >= 4) {
-            alert("Du kan jämföra maximalt 4 bilar samtidigt.");
+        if (cars.length >= 5) {
+            alert("Du kan jämföra maximalt 5 bilar samtidigt.");
             return;
         }
         const newId = Date.now();
@@ -737,13 +755,15 @@
         updateElZone();
     }
 
-    function updateCarValue(id, key, value) {
+    function updateCarValue(id, key, value, reRenderNeeded = false) {
         const car = cars.find(c => c.id === id);
         if (car) {
             if (key === 'isLeasing') {
                 car[key] = value === 'true';
+                reRenderNeeded = true;
             } else if (key === 'isEV') {
                 car[key] = value === 'true';
+                reRenderNeeded = true;
                 if (car.isEV) {
                     const currentZone = document.getElementById('global-zone').value;
                     car.fuelPrice = ZONE_PRICES[currentZone].basePrice;
@@ -755,7 +775,10 @@
             } else {
                 car[key] = parseFloat(value) || 0;
             }
-            renderCars();
+
+            if (reRenderNeeded) {
+                renderCars();
+            }
             calculateAll();
         }
     }
@@ -828,7 +851,7 @@
                 <div class="car-body">
                     <div class="form-row">
                         <label>Drivlinetyp</label>
-                        <select onchange="updateCarValue(${car.id}, 'isEV', this.value)" style="background:#0f172a; color:#fff; border:1px solid var(--card-border); padding:4px 8px; border-radius:6px;">
+                        <select onchange="updateCarValue(${car.id}, 'isEV', this.value, true)" style="background:#0f172a; color:#fff; border:1px solid var(--card-border); padding:4px 8px; border-radius:6px;">
                             <option value="true" ${car.isEV ? 'selected' : ''}>⚡ Elbil</option>
                             <option value="false" ${!car.isEV ? 'selected' : ''}>⛽ Bensin / Diesel</option>
                         </select>
@@ -836,7 +859,7 @@
 
                     <div class="form-row">
                         <label>Finansieringstyp</label>
-                        <select onchange="updateCarValue(${car.id}, 'isLeasing', this.value)" style="background:#0f172a; color:#fff; border:1px solid var(--card-border); padding:4px 8px; border-radius:6px;">
+                        <select onchange="updateCarValue(${car.id}, 'isLeasing', this.value, true)" style="background:#0f172a; color:#fff; border:1px solid var(--card-border); padding:4px 8px; border-radius:6px;">
                             <option value="false" ${!car.isLeasing ? 'selected' : ''}>Köp / Äga</option>
                             <option value="true" ${car.isLeasing ? 'selected' : ''}>Privatleasing</option>
                         </select>
@@ -904,7 +927,7 @@
             grid.appendChild(carCard);
         });
 
-        document.getElementById('add-car-btn').style.display = cars.length >= 4 ? 'none' : 'inline-flex';
+        document.getElementById('add-car-btn').style.display = cars.length >= 5 ? 'none' : 'inline-flex';
     }
 
     function calculateAll() {
