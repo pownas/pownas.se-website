@@ -1,247 +1,306 @@
-/* ==========================================================================
-1. MODERN VARIABLE SETUP & WCAG COMPLIANT THEMES
-========================================================================== */
 :root {
-  --bg: #f5f7fb;
-  --ink: #0f172a;
-  --muted: #475569; /* WCAG AA godkänd grå för ljus bakgrund */
+  color-scheme: light;
+  --bg: #f3f6fb;
+  --ink: #142033;
+  --muted: #526179;
   --surface: #ffffff;
-  --line: #d8dfeb;
-  --accent: #0284c7;
-  --hero-bg: linear-gradient(120deg, rgba(255, 255, 255, 0.98) 5%, rgba(240, 247, 255, 0.92) 60%);
-  --shadow: rgba(15, 23, 42, 0.04);
-
-  --hover-bg: rgba(2, 132, 199, 0.06);
-  --hover-glow: rgba(2, 132, 199, 0.12);
+  --line: #dce4ef;
+  --accent: #1769e0;
+  --accent-soft: rgba(23, 105, 224, 0.1);
+  --hero-start: #ffffff;
+  --hero-end: #e8f1ff;
+  --shadow: 0 18px 48px rgba(27, 49, 83, 0.08);
+  --shadow-hover: 0 22px 50px rgba(27, 49, 83, 0.14);
 }
 
-/* Aktiveras dynamiskt via kryssrutan (som styrs av både klick och webbläsarens API) */
-html:has(#theme-toggle:checked) {
-  --bg: #090d16;
-  --ink: #f9fafb; /* Högsta kontrast för text i dark mode */
-  --muted: #9ca3af; /* WCAG AA godkänd grå för mörk bakgrund */
-  --surface: #111827;
-  --line: #1f2937;
-  --accent: #38bdf8;
-  --hero-bg: linear-gradient(120deg, #161f30 0%, #111827 100%);
-  --shadow: rgba(0, 0, 0, 0.3);
-
-  --hover-bg: rgba(56, 189, 248, 0.08);
-  --hover-glow: rgba(56, 189, 248, 0.2);
+:root[data-theme="dark"],
+:root:has(#theme-toggle:checked) {
+  color-scheme: dark;
+  --bg: #0c1220;
+  --ink: #edf3ff;
+  --muted: #a4b1c8;
+  --surface: #141d2e;
+  --line: #2a3850;
+  --accent: #79b4ff;
+  --accent-soft: rgba(121, 180, 255, 0.12);
+  --hero-start: #18243a;
+  --hero-end: #101a2b;
+  --shadow: 0 18px 48px rgba(0, 0, 0, 0.2);
+  --shadow-hover: 0 22px 50px rgba(0, 0, 0, 0.32);
 }
 
-/* ==========================================================================
-2. BASE RESET & SHELL
-========================================================================== */
 * {
   box-sizing: border-box;
 }
 
+html {
+  min-width: 320px;
+  scroll-behavior: smooth;
+}
+
 body {
+  min-height: 100vh;
   margin: 0;
   color: var(--ink);
-  background-color: var(--bg);
-  background-image: radial-gradient(circle at 90% 0%, var(--hover-bg) 0%, transparent 45%);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background:
+    radial-gradient(ellipse at 86% 0%, var(--accent-soft), transparent 34rem),
+    var(--bg);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.6;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  transition: background-color 0.3s, color 0.3s;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.skip-link {
+  position: absolute;
+  z-index: 2;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.65rem 1rem;
+  transform: translateY(-160%);
+  border-radius: 0.6rem;
+  color: var(--surface);
+  background: var(--ink);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
 }
 
 .page-shell {
-  width: min(100% - 2rem, 900px);
-  margin-block: min(3rem, 6vh);
-  margin-inline: auto;
   display: flex;
+  width: min(100% - 2rem, 940px);
+  min-height: 100vh;
   flex-direction: column;
   gap: 1.25rem;
+  margin-inline: auto;
+  padding-block: clamp(1.25rem, 5vh, 3.5rem);
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-}
-
-/* ==========================================================================
-3. HERO COMPONENT (KOMPAKT & BRED TEXT)
-========================================================================== */
 .hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(1.5rem, 5vw, 3.25rem);
   border: 1px solid var(--line);
-  border-radius: 20px;
-  padding: 1.5rem;
-  background: var(--hero-bg);
-  box-shadow: 0 15px 35px var(--shadow);
-  transition: all 0.3s;
+  border-radius: 1.75rem;
+  background: linear-gradient(125deg, var(--hero-start), var(--hero-end));
+  box-shadow: var(--shadow);
+}
+
+.hero::after {
+  position: absolute;
+  z-index: -1;
+  top: -9rem;
+  right: -7rem;
+  width: 23rem;
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 2.5rem color-mix(in srgb, var(--accent) 5%, transparent),
+    0 0 0 5rem color-mix(in srgb, var(--accent) 3%, transparent);
+  content: "";
+  pointer-events: none;
+}
+
+.hero-top,
+.brand,
+.theme-btn,
+.icon-wrapper,
+.arrow-icon {
+  display: inline-flex;
+  align-items: center;
 }
 
 .hero-top {
-  display: flex;
+  width: 100%;
   justify-content: space-between;
-  align-items: center;
   gap: 1rem;
-  flex-wrap: wrap;
 }
 
 .brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
+  gap: 0.7rem;
   color: var(--ink);
-  font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
   text-decoration: none;
 }
 
+.brand img {
+  display: block;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.7rem;
+  box-shadow: 0 5px 16px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
 .theme-btn {
-  cursor: pointer;
-  padding: 0.4rem 0.75rem;
-  border-radius: 99px;
+  gap: 0.5rem;
+  min-height: 2.65rem;
+  padding: 0.45rem 0.85rem;
   border: 1px solid var(--line);
-  background: var(--surface);
-  font-size: 0.85rem;
-  user-select: none;
+  border-radius: 999px;
   color: var(--ink);
-  transition: background-color 0.2s;
+  background: var(--surface);
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
 }
 
-/* Emojin visar vad man byter TILL om man klickar */
-html:has(#theme-toggle:checked) .theme-icon::before {
-  content: "☀️ Light Mode";
+.theme-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent);
+  background: var(--accent-soft);
 }
 
-html:not(:has(#theme-toggle:checked)) .theme-icon::before {
-  content: "🌙 Dark Mode";
+.theme-icon {
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .hero-content {
-  margin-top: 1rem;
-  container-type: inline-size;
-}
-
-.mobile-view {
-  display: none;
-}
-
-@container (max-width: 299.98px) {
-  .mobile-view {
-    display: inline;
-  }
+  max-width: 680px;
+  margin-top: clamp(2.5rem, 7vw, 5rem);
 }
 
 .eyebrow {
-  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 0.75rem;
+  color: var(--accent);
+  font-size: 0.76rem;
+  font-weight: 750;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--muted);
+}
+
+.eyebrow::before {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: currentColor;
+  content: "";
 }
 
 h1 {
-  margin-block: 0.4rem 0.6rem;
-  font-size: clamp(1.6rem, 4.5vw, 2.4rem);
-  line-height: 1.2;
-  font-weight: 800;
-  max-width: 100%;
+  max-width: 15ch;
+  margin: 0;
+  font-size: clamp(2.25rem, 7vw, 4.3rem);
+  font-weight: 780;
+  letter-spacing: -0.065em;
+  line-height: 1.04;
 }
 
 .lead {
-  margin: 0;
-  max-width: 100%;
+  max-width: 55ch;
+  margin: 1rem 0 0;
   color: var(--muted);
-  font-size: 1rem;
-  line-height: 1.5;
+  font-size: clamp(1rem, 2vw, 1.15rem);
 }
 
-/* ==========================================================================
-4. CARDS & GRID
-========================================================================== */
 .content-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem;
 }
 
 .card {
-  background: var(--surface);
+  min-width: 0;
+  padding: clamp(1.25rem, 3vw, 1.75rem);
   border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 10px 25px var(--shadow);
-  transition: background-color 0.3s;
+  border-radius: 1.4rem;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  box-shadow: var(--shadow-hover);
 }
 
 h2 {
-  margin: 0 0 0.75rem 0;
-  font-size: 1.15rem;
-  font-weight: 700;
+  margin: 0 0 0.85rem;
+  font-size: 1.05rem;
+  font-weight: 750;
+  letter-spacing: -0.015em;
 }
 
-/* ==========================================================================
-5. INTERACTIVE LISTS WITH BLURRED HIGHLIGHT
-========================================================================== */
 .interactive-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
   margin: 0;
   padding: 0;
   list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
 }
 
 .interactive-list a {
   display: flex;
+  min-height: 3.25rem;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 0.75rem;
-  margin-inline: -0.75rem;
-  border-radius: 8px;
+  gap: 1rem;
+  margin-inline: -0.6rem;
+  padding: 0.7rem 0.6rem;
+  border-radius: 0.7rem;
   color: var(--ink);
-  font-weight: 600;
   font-size: 0.95rem;
+  font-weight: 620;
   text-decoration: none;
-  outline: none;
-  transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s, color 0.1s;
+  transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
 
 .interactive-list li:not(:last-child) a {
   border-bottom: 1px solid var(--line);
-}
-
-.interactive-list li:not(:last-child) a:hover {
-  border-bottom-color: transparent;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .interactive-list a:hover,
 .interactive-list a:focus-visible {
-  background-color: var(--hover-bg);
-  box-shadow: 0 0 16px 2px var(--hover-glow);
-  transform: translateX(4px);
-  color: var(--ink); /* Säkerställer WCAG-kontrast vid hovring */
+  transform: translateX(3px);
+  color: var(--ink);
+  background: var(--accent-soft);
 }
 
 .icon-wrapper {
-  display: inline-flex;
-  align-items: center;
+  min-width: 0;
   gap: 0.75rem;
 }
 
 .icon {
+  flex: 0 0 auto;
   color: var(--accent);
   fill: currentColor;
-  flex-shrink: 0;
 }
 
 .arrow-icon {
+  flex: 0 0 auto;
   color: var(--muted);
-  flex-shrink: 0;
-  transition: transform 0.2s;
+  transition: color 0.18s ease, transform 0.18s ease;
 }
 
 .interactive-list a:hover .arrow-icon,
@@ -250,19 +309,16 @@ h2 {
   color: var(--accent);
 }
 
-/* ==========================================================================
-6. FOOTER
-========================================================================== */
 .site-footer {
-  border-top: 1px solid var(--line);
-  margin-top: 1rem;
-  padding-block: 1.25rem 0;
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
   flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  margin-top: auto;
+  padding: 1.2rem 0.25rem 0;
+  border-top: 1px solid var(--line);
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.84rem;
 }
 
 .site-footer p {
@@ -271,13 +327,21 @@ h2 {
 
 .site-footer a {
   color: var(--ink);
-  font-weight: 600;
-  text-decoration: underline;
+  font-weight: 650;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
 }
 
-/* ==========================================================================
-7. TOOL INDEX PAGES (VERKTYG + KALKYLATOR)
-========================================================================== */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
 .tool-index-card {
   display: grid;
   gap: 0.9rem;
@@ -294,66 +358,65 @@ h2 {
 }
 
 .folder-list {
-  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 0.8rem;
   margin: 0;
   padding: 0;
-  display: grid;
-  gap: 0.8rem;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  list-style: none;
 }
 
 .folder-item {
+  min-width: 0;
   margin: 0;
 }
 
 .folder-name {
-  font-weight: 700;
   color: var(--ink);
+  font-weight: 700;
 }
 
 .folder-path {
   margin-top: 0.1rem;
   color: var(--muted);
   font-size: 0.88rem;
-  word-break: break-all;
+  overflow-wrap: anywhere;
 }
 
 .folder-link {
-  height: 100%;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 0.85rem 1rem;
   display: flex;
+  height: 100%;
   flex-direction: column;
   justify-content: space-between;
   gap: 0.6rem;
-  background: var(--surface);
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
   color: var(--ink);
+  background: var(--surface);
   text-decoration: none;
-  outline: none;
-  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+  transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .folder-link:hover,
 .folder-link:focus-visible {
   transform: translateY(-2px);
   border-color: var(--accent);
-  background-color: var(--hover-bg);
-  box-shadow: 0 0 16px 2px var(--hover-glow);
+  background: var(--accent-soft);
 }
 
 .folder-cta {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  color: var(--accent);
   font-size: 0.86rem;
   font-weight: 700;
-  color: var(--accent);
 }
 
 .folder-cta::after {
-  content: "->";
-  transition: transform 0.2s;
+  content: "→";
+  transition: transform 0.2s ease;
 }
 
 .folder-link:hover .folder-cta::after,
@@ -361,12 +424,39 @@ h2 {
   transform: translateX(2px);
 }
 
-@media (max-width: 640px) {
-  .folder-list {
-    grid-template-columns: 1fr;
+@media (max-width: 680px) {
+  .page-shell {
+    width: min(100% - 1.25rem, 940px);
+    padding-block: 0.625rem;
   }
 
-  .folder-item {
-    width: 100%;
+  .content-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .hero {
+    border-radius: 1.25rem;
+  }
+
+  .hero::after {
+    top: -11rem;
+    right: -13rem;
+  }
+
+  .site-footer {
+    flex-direction: column;
+    padding-inline: 0.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
