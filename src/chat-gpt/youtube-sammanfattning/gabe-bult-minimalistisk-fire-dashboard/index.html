@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="sv" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimalistisk Lönerutin & Ekonomisk Frihet | Gabe Bult Framework</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b',
+                        },
+                        darkbg: '#090d16',
+                        cardbg: '#111827',
+                        cardborder: '#1f2937',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom Styling & Glassmorphism -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #090d16;
+            color: #f3f4f6;
+        }
+        .glass-card {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card-glow {
+            box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.15);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #059669 0%, #2563eb 100%);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #374151;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Navigation -->
+    <header class="sticky top-0 z-50 glass-card border-b border-gray-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-brand-500/20">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+                <div>
+                    <a href="https://www.youtube.com/watch?v=-iAElCbelj8" target="_blank" rel="noopener noreferrer"><span class="font-bold text-lg text-white tracking-tight">MINIMALIST <span class="text-brand-500">FIRE</span></span>
+                    <span class="hidden sm:inline-block text-xs bg-brand-900/60 text-brand-400 border border-brand-700/50 px-2 py-0.5 rounded-full ml-2">Gabe Bult Routine</span></a>
+                </div>
+            </div>
+            
+            <nav class="hidden md:flex space-x-6 text-sm font-medium text-gray-400">
+                <a href="#kpi-section" class="hover:text-brand-400 transition-colors">Nyckeltal</a>
+                <a href="#chart-section" class="hover:text-brand-400 transition-colors">Sparränta vs Tid</a>
+                <a href="#calculator-section" class="hover:text-brand-400 transition-colors">Kalkylator</a>
+                <a href="#hysa-section" class="hover:text-brand-400 transition-colors">HYSA-Jämförelse</a>
+                <a href="#routine-section" class="hover:text-brand-400 transition-colors">Steg-för-steg Rutin</a>
+            </nav>
+
+            <div class="flex items-center space-x-3">
+                <button id="currency-toggle" onclick="toggleCurrency()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 transition flex items-center gap-1">
+                    <span id="currency-label"><i class="fa-solid fa-dollar-sign text-brand-400"></i> USD ($)</span>
+                </button>
+                <a href="https://www.youtube.com/watch?v=-iAElCbelj8" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 border border-brand-500/30 transition flex items-center gap-2">
+                    <i class="fa-brands fa-youtube text-red-500"></i>
+                    <span>Se Videon</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12 flex-grow">
+
+        <!-- Hero Section -->
+        <section class="relative overflow-hidden rounded-3xl glass-card p-8 sm:p-12 border border-gray-800">
+            <div class="absolute -top-24 -right-24 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="relative z-10 max-w-3xl">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-brand-500/10 border border-brand-500/20 text-brand-400 mb-4">
+                    <i class="fa-solid fa-bolt text-yellow-400"></i>
+                    <span>Ekonomisk Frihet vid 24 års ålder</span>
+                </div>
+                <h1 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
+                    Min Minimalistiska Lönerutin Som Gjorde Mig <span class="gradient-text">Rik & Fri</span>
+                </h1>
+                <p class="text-gray-300 text-base sm:text-lg leading-relaxed mb-6">
+                    Byggt på koncepten från Gabe Bults kända rutin: Hur du genom automatisering, strategisk sparränta och kassaflödesfokus kan bygga en trygg "skyddsvägg" och nå ekonomiskt oberoende långt före ordinarie pensionsålder.
+                </p>
+                
+                <div class="flex flex-wrap gap-4 text-xs sm:text-sm text-gray-400">
+                    <div class="flex items-center gap-2 bg-gray-900/80 px-3 py-2 rounded-lg border border-gray-800">
+                        <i class="fa-solid fa-check text-brand-500"></i>
+                        <span>Automatiserat sparande</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-gray-900/80 px-3 py-2 rounded-lg border border-gray-800">
+                        <i class="fa-solid fa-check text-brand-500"></i>
+                        <span>Kassaflöde > Låsta konton</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-gray-900/80 px-3 py-2 rounded-lg border border-gray-800">
+                        <i class="fa-solid fa-check text-brand-500"></i>
+                        <span>High-Yield Savings Account</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Metrics / KPI Section -->
+        <section id="kpi-section" class="scroll-mt-20">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-chart-simple text-brand-500"></i>
+                        Nyckeltal från Filmen
+                    </h2>
+                    <p class="text-xs sm:text-sm text-gray-400">Statistik och målsättningar som Gabe Bult lyfter fram.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- KPI 1 -->
+                <div class="glass-card rounded-2xl p-5 border border-gray-800 hover:border-brand-500/50 transition-all group">
+                    <div class="flex items-center justify-between text-gray-400 mb-3">
+                        <span class="text-xs font-semibold uppercase tracking-wider">Daglig effekt</span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                            <i class="fa-solid fa-piggy-bank"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-extrabold text-white group-hover:text-brand-400 transition-colors currency-value" data-usd="27" data-prefix="$" data-suffix=" / dag">
+                        $27 / dag
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">Blir nästan <strong class="text-emerald-400 currency-value" data-usd="10000" data-prefix="$" data-suffix=" / år">$10 000 / år</strong> i sparande genom små medvetna val.</p>
+                </div>
+
+                <!-- KPI 2 -->
+                <div class="glass-card rounded-2xl p-5 border border-gray-800 hover:border-brand-500/50 transition-all group">
+                    <div class="flex items-center justify-between text-gray-400 mb-3">
+                        <span class="text-xs font-semibold uppercase tracking-wider">Gabes Sparränta</span>
+                        <div class="w-8 h-8 rounded-lg bg-brand-500/10 text-brand-400 flex items-center justify-center">
+                            <i class="fa-solid fa-fire"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-extrabold text-brand-400">75%</div>
+                    <p class="text-xs text-gray-400 mt-1">Gabes unika sparränta när han intensivt byggde upp sin förmögenhet.</p>
+                </div>
+
+                <!-- KPI 3 -->
+                <div class="glass-card rounded-2xl p-5 border border-gray-800 hover:border-brand-500/50 transition-all group">
+                    <div class="flex items-center justify-between text-gray-400 mb-3">
+                        <span class="text-xs font-semibold uppercase tracking-wider">Målsparränta</span>
+                        <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-extrabold text-white">50%</div>
+                    <p class="text-xs text-gray-400 mt-1">Rekommenderad aggressiv baslinje för att nå frihet på ~17 år.</p>
+                </div>
+
+                <!-- KPI 4 -->
+                <div class="glass-card rounded-2xl p-5 border border-gray-800 hover:border-brand-500/50 transition-all group">
+                    <div class="flex items-center justify-between text-gray-400 mb-3">
+                        <span class="text-xs font-semibold uppercase tracking-wider">USA Kris-Statistik</span>
+                        <div class="w-8 h-8 rounded-lg bg-red-500/10 text-red-400 flex items-center justify-center">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-extrabold text-red-400">24%</div>
+                    <p class="text-xs text-gray-400 mt-1">Har $0 i nödfond (37% av befolkningen klarar inte en oväntad utgift på $400).</p>
+                </div>
+
+                <!-- KPI 5 -->
+                <div class="glass-card rounded-2xl p-5 border border-gray-800 hover:border-brand-500/50 transition-all group">
+                    <div class="flex items-center justify-between text-gray-400 mb-3">
+                        <span class="text-xs font-semibold uppercase tracking-wider">USA Snittsparränta</span>
+                        <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                            <i class="fa-solid fa-chart-line-down"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-extrabold text-amber-400">4%</div>
+                    <p class="text-xs text-gray-400 mt-1">Standard sparränta i USA – kräver över 60+ års arbete för pension.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chart Section: Savings Rate vs Freedom -->
+        <section id="chart-section" class="scroll-mt-20">
+            <div class="glass-card rounded-3xl p-6 sm:p-8 border border-gray-800">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-400 uppercase tracking-wider mb-1">
+                            <i class="fa-solid fa-clock"></i> Tid till Pension
+                        </div>
+                        <h2 class="text-2xl font-bold text-white">Sparränta vs Tid till Ekonomiskt Oberoende</h2>
+                        <p class="text-xs sm:text-sm text-gray-400">Ju högre sparränta, desto snabbare köper du tillbaka din tid.</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 bg-gray-900/80 p-1.5 rounded-xl border border-gray-800 text-xs">
+                        <span class="text-gray-400 px-2">Klicka stapel för detalj</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+                    <!-- Chart Container -->
+                    <div class="lg:col-span-2 relative h-72 sm:h-80 w-full">
+                        <canvas id="savingsRateChart"></canvas>
+                    </div>
+
+                    <!-- Chart Insights -->
+                    <div class="space-y-4 bg-gray-900/60 p-5 rounded-2xl border border-gray-800/80">
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-lightbulb text-yellow-400"></i>
+                            Mekaniken Bakom Siffrorna
+                        </h3>
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            Varje ökning i din sparränta har en dubbel effekt: Du sparar mer pengar samtidigt som dina faktiska levnadskostnader minskar.
+                        </p>
+
+                        <div class="space-y-3 pt-2 text-xs">
+                            <div class="p-2.5 rounded-xl bg-red-950/30 border border-red-900/40 flex justify-between items-center">
+                                <span class="text-gray-300">10% Sparränta</span>
+                                <span class="font-bold text-red-400">51 År kvar</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-amber-950/30 border border-amber-900/40 flex justify-between items-center">
+                                <span class="text-gray-300">25% Sparränta</span>
+                                <span class="font-bold text-amber-400">32 År kvar</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-blue-950/30 border border-blue-900/40 flex justify-between items-center">
+                                <span class="text-gray-300">50% Sparränta (Mål)</span>
+                                <span class="font-bold text-blue-400">17 År kvar</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-emerald-950/30 border border-emerald-900/40 flex justify-between items-center">
+                                <span class="text-gray-300">75% Sparränta (Gabe)</span>
+                                <span class="font-bold text-brand-400">7 År kvar</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Freedom Calculator -->
+        <section id="calculator-section" class="scroll-mt-20">
+            <div class="glass-card glass-card-glow rounded-3xl p-6 sm:p-8 border border-gray-800">
+                <div class="max-w-2xl mb-8">
+                    <span class="text-xs font-semibold text-brand-400 uppercase tracking-wider">Interaktivt Verktyg</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">Kalkylator för Sparränta & Frihet</h2>
+                    <p class="text-xs sm:text-sm text-gray-400 mt-1">
+                        Mata in din månatliga inkomst och dina utgifter för att räkna ut din sparränta och beräknade år till ekonomiskt oberoende.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Inputs Form -->
+                    <div class="lg:col-span-6 space-y-5 bg-gray-900/70 p-6 rounded-2xl border border-gray-800">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-300 mb-2 flex justify-between">
+                                <span>Månadsinkomst (efter skatt)</span>
+                                <span id="calc-income-val" class="font-bold text-brand-400">$4,000</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 text-sm currency-sym">$</span>
+                                <input type="number" id="calc-income" value="4000" step="100" class="w-full pl-8 pr-4 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-white focus:outline-none focus:border-brand-500 transition text-sm">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-300 mb-2 flex justify-between">
+                                <span>Månadsutgifter</span>
+                                <span id="calc-expenses-val" class="font-bold text-amber-400">$2,000</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 text-sm currency-sym">$</span>
+                                <input type="number" id="calc-expenses" value="2000" step="100" class="w-full pl-8 pr-4 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-white focus:outline-none focus:border-brand-500 transition text-sm">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-300 mb-2">
+                                Snabbjustering av Sparränta (Slider)
+                            </label>
+                            <input type="range" id="calc-slider" min="0" max="90" value="50" class="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-brand-500">
+                            <div class="flex justify-between text-[10px] text-gray-500 mt-1">
+                                <span>0%</span>
+                                <span>25%</span>
+                                <span>50%</span>
+                                <span>75%</span>
+                                <span>90%</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 text-xs text-gray-400 border-t border-gray-800 flex items-center gap-2">
+                            <i class="fa-solid fa-circle-info text-brand-400"></i>
+                            <span>Beräkningen baseras på 4% regelmässigt uttag (FIRE) & 7% reell avkastning.</span>
+                        </div>
+                    </div>
+
+                    <!-- Calculator Dynamic Results -->
+                    <div class="lg:col-span-6 flex flex-col justify-between space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-gray-900/90 p-4 rounded-2xl border border-gray-800">
+                                <span class="text-xs text-gray-400 block mb-1">Din Sparränta</span>
+                                <span id="res-savings-rate" class="text-3xl font-extrabold text-brand-400">50.0%</span>
+                                <span id="res-rate-badge" class="block mt-1 text-[11px] text-emerald-400 font-medium">Gabe Rekommenderar Mål</span>
+                            </div>
+
+                            <div class="bg-gray-900/90 p-4 rounded-2xl border border-gray-800">
+                                <span class="text-xs text-gray-400 block mb-1">Månatligt Sparande</span>
+                                <span id="res-monthly-savings" class="text-2xl sm:text-3xl font-extrabold text-white">$2,000</span>
+                                <span id="res-yearly-savings" class="block mt-1 text-[11px] text-gray-400">$24,000 / år</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-gray-900 via-gray-900 to-brand-950/40 p-6 rounded-2xl border border-brand-500/30 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 p-4 opacity-10 text-brand-400">
+                                <i class="fa-solid fa-hourglass-half text-8xl"></i>
+                            </div>
+                            
+                            <span class="text-xs font-semibold text-brand-400 uppercase tracking-wider block mb-1">Beräknad Tid Till Frihet</span>
+                            <div class="flex items-baseline space-x-2">
+                                <span id="res-years-to-fire" class="text-4xl sm:text-5xl font-black text-white">16.6</span>
+                                <span class="text-xl font-bold text-gray-300">År</span>
+                            </div>
+                            <p id="res-fire-comment" class="text-xs text-gray-300 mt-3 leading-relaxed">
+                                Med 50% sparränta når du ekonomisk frihet på drygt 16–17 år! Du sparar lika mycket som du spenderar varje månad.
+                            </p>
+                        </div>
+
+                        <!-- Emergency Fund Goal Card -->
+                        <div class="bg-gray-900/60 p-4 rounded-2xl border border-gray-800 flex justify-between items-center text-xs">
+                            <div>
+                                <span class="text-gray-400 block">Mål för Nödfond (6 månaders utgifter):</span>
+                                <strong id="res-emergency-target" class="text-white text-sm">$12,000</strong>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-gray-400 block">Tid att bygga med sparande:</span>
+                                <strong id="res-emergency-months" class="text-brand-400 text-sm">6.0 månader</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- HYSA vs Traditional Bank Account Section -->
+        <section id="hysa-section" class="scroll-mt-20">
+            <div class="glass-card rounded-3xl p-6 sm:p-8 border border-gray-800">
+                <div class="max-w-3xl mb-8">
+                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-piggy-bank"></i> Skyddsvägg & Avkastning
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white">Vanligt Sparkonto (0.1%) vs HYSA (4.0%+)</h2>
+                    <p class="text-xs sm:text-sm text-gray-400 mt-1">
+                        I filmen betonar Gabe vikten av ett High-Yield Savings Account för nödfonden. Att ha $10 000 liggande hos en storbank med 0,1% ränta gör att du förlorar tusentals dollar till inflationen.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <!-- Comparison Cards -->
+                    <div class="lg:col-span-7 space-y-4">
+                        <!-- Traditional Bank Card -->
+                        <div class="bg-gray-900/80 p-5 rounded-2xl border border-red-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 rounded-xl bg-red-500/10 text-red-400 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid font-bold text-lg">0.1%</i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-white text-sm">Storbank (Traditionellt Konto)</h4>
+                                    <p class="text-xs text-gray-400">Passivt konto utan avkastning</p>
+                                </div>
+                            </div>
+                            <div class="text-right sm:text-right flex sm:block justify-between border-t sm:border-0 border-gray-800 pt-2 sm:pt-0">
+                                <span class="text-xs text-gray-400 block">Värde efter 10 år:</span>
+                                <span class="font-bold text-gray-300 currency-value" data-usd="10100" data-prefix="$">$10,100</span>
+                                <span class="text-[10px] text-red-400 block">+ $100 total vinst</span>
+                            </div>
+                        </div>
+
+                        <!-- HYSA Card -->
+                        <div class="bg-gradient-to-r from-gray-900 via-gray-900 to-emerald-950/40 p-5 rounded-2xl border border-brand-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg shadow-brand-500/5">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid font-bold text-lg">4.2%</i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                                        High Yield Savings Account (HYSA)
+                                        <span class="text-[10px] bg-brand-500/20 text-brand-400 px-2 py-0.5 rounded-full border border-brand-500/30">Gabes Val</span>
+                                    </h4>
+                                    <p class="text-xs text-gray-400">Ränta-på-ränta effekt på nödfonden</p>
+                                </div>
+                            </div>
+                            <div class="text-right sm:text-right flex sm:block justify-between border-t sm:border-0 border-gray-800 pt-2 sm:pt-0">
+                                <span class="text-xs text-gray-400 block">Värde efter 10 år:</span>
+                                <span class="font-bold text-brand-400 text-lg currency-value" data-usd="15089" data-prefix="$">$15,089</span>
+                                <span class="text-[10px] text-emerald-400 block">+ $5,089 i ren ränta</span>
+                            </div>
+                        </div>
+
+                        <!-- Lost Potential Highlight -->
+                        <div class="bg-red-950/20 p-4 rounded-2xl border border-red-900/40 flex items-center gap-3">
+                            <i class="fa-solid fa-triangle-exclamation text-red-400 text-xl shrink-0"></i>
+                            <p class="text-xs text-gray-300">
+                                <strong class="text-red-400">Du förlorar över <span class="currency-value" data-usd="4989" data-prefix="$">$4,989</span></strong> på 10 år genom att låta dina nödfondspengar ($10 000) ligga kvar på ett konto med 0,1% ränta!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Growth Comparison Visual Table -->
+                    <div class="lg:col-span-5 bg-gray-900/70 p-5 rounded-2xl border border-gray-800">
+                        <h4 class="text-xs font-bold text-gray-300 uppercase tracking-wider mb-4">
+                            Tillväxt på $10 000 Nödfond
+                        </h4>
+                        
+                        <div class="space-y-4 text-xs">
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-gray-400">1 År</span>
+                                    <span class="text-gray-300 font-medium"><span class="text-red-400">$10,010</span> vs <span class="text-brand-400">$10,420</span></span>
+                                </div>
+                                <div class="w-full h-2 bg-gray-800 rounded-full overflow-hidden flex">
+                                    <div class="bg-red-500/60 h-full" style="width: 48%"></div>
+                                    <div class="bg-brand-500 h-full" style="width: 52%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-gray-400">5 År</span>
+                                    <span class="text-gray-300 font-medium"><span class="text-red-400">$10,050</span> vs <span class="text-brand-400">$12,284</span></span>
+                                </div>
+                                <div class="w-full h-2 bg-gray-800 rounded-full overflow-hidden flex">
+                                    <div class="bg-red-500/60 h-full" style="width: 42%"></div>
+                                    <div class="bg-brand-500 h-full" style="width: 58%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-gray-400">10 År</span>
+                                    <span class="text-gray-300 font-medium"><span class="text-red-400">$10,100</span> vs <span class="text-brand-400">$15,089</span></span>
+                                </div>
+                                <div class="w-full h-2 bg-gray-800 rounded-full overflow-hidden flex">
+                                    <div class="bg-red-500/60 h-full" style="width: 35%"></div>
+                                    <div class="bg-brand-500 h-full" style="width: 65%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-4 border-t border-gray-800 text-[11px] text-gray-400">
+                            *Beräknat med månatlig ränta-på-ränta. HYSA baserat på 4,2% sparränta.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step-by-Step Flowchart / Paycheck Routine -->
+        <section id="routine-section" class="scroll-mt-20">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <span class="text-xs font-semibold text-brand-400 uppercase tracking-wider">Infografik & Steg</span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">Gabe Bults 4-Stegs Lönerutin</h2>
+                <p class="text-xs sm:text-sm text-gray-400 mt-1">
+                    Enkel automatisering som eliminerar frestelsen att spendera och säkerställer kontinuerlig tillväxt.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+                <!-- Step 1 -->
+                <div class="glass-card rounded-2xl p-6 border border-gray-800 relative hover:border-brand-500/50 transition flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="w-8 h-8 rounded-full bg-brand-500/20 text-brand-400 font-extrabold flex items-center justify-center text-sm border border-brand-500/30">1</span>
+                            <i class="fa-solid fa-calculator text-gray-500 text-xl"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-base mb-2">Beräkna & Sätt Mål</h3>
+                        <p class="text-xs text-gray-300 leading-relaxed mb-3">
+                            Ta reda på din nuvarande sparränta. Sätt ett tydligt mål (Sikta på <strong>35% – 50%+</strong> för snabb frihet).
+                        </p>
+                    </div>
+                    <div class="bg-gray-900/80 p-2.5 rounded-xl border border-gray-800 text-[11px] text-brand-400">
+                        <i class="fa-solid fa-check mr-1"></i> Mät vad du faktiskt spenderar
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="glass-card rounded-2xl p-6 border border-gray-800 relative hover:border-brand-500/50 transition flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="w-8 h-8 rounded-full bg-brand-500/20 text-brand-400 font-extrabold flex items-center justify-center text-sm border border-brand-500/30">2</span>
+                            <i class="fa-solid fa-robot text-gray-500 text-xl"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-base mb-2">"Stjäl Från Dig Själv Först"</h3>
+                        <p class="text-xs text-gray-300 leading-relaxed mb-3">
+                            Automatisera överföringen på lönedagen till ett gömt investerings-/sparkonto innan du hinner spendera pengarna.
+                        </p>
+                    </div>
+                    <div class="bg-gray-900/80 p-2.5 rounded-xl border border-gray-800 text-[11px] text-brand-400">
+                        <i class="fa-solid fa-lock mr-1"></i> "Ut ur sikte, ut ur sinnet"
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="glass-card rounded-2xl p-6 border border-gray-800 relative hover:border-brand-500/50 transition flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="w-8 h-8 rounded-full bg-brand-500/20 text-brand-400 font-extrabold flex items-center justify-center text-sm border border-brand-500/30">3</span>
+                            <i class="fa-solid fa-shield-halved text-gray-500 text-xl"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-base mb-2">Bygg Skyddsväggen</h3>
+                        <p class="text-xs text-gray-300 leading-relaxed mb-3">
+                            Säkra en $10 000 (eller 3–6 månaders utgifter) nödfond i ett High-Yield Savings Account för trygghet och frihet från stress.
+                        </p>
+                    </div>
+                    <div class="bg-gray-900/80 p-2.5 rounded-xl border border-gray-800 text-[11px] text-brand-400">
+                        <i class="fa-solid fa-shield mr-1"></i> Trygghet vid oförutsedda händelser
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="glass-card rounded-2xl p-6 border border-gray-800 relative hover:border-brand-500/50 transition flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="w-8 h-8 rounded-full bg-brand-500/20 text-brand-400 font-extrabold flex items-center justify-center text-sm border border-brand-500/30">4</span>
+                            <i class="fa-solid fa-chart-line text-gray-500 text-xl"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-base mb-2">Investera i Kassaflöde & Färdigheter</h3>
+                        <p class="text-xs text-gray-300 leading-relaxed mb-3">
+                            Investera i färdigheter med hög ROI ($5k kurs / träning -> +$10k/år i lön), house hacking, indexfonder och digitala tillgångar.
+                        </p>
+                    </div>
+                    <div class="bg-gray-900/80 p-2.5 rounded-xl border border-gray-800 text-[11px] text-brand-400">
+                        <i class="fa-solid fa-arrow-up-right-dots mr-1"></i> Maximera kassaflödet tidigt
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Takeaways & Core Principles -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Principle 1 -->
+            <div class="glass-card rounded-2xl p-6 border border-gray-800 space-y-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-sliders"></i>
+                </div>
+                <h3 class="font-bold text-white text-lg">De Två Spakarna</h3>
+                <p class="text-xs text-gray-300 leading-relaxed">
+                    Ekonomisk frihet har bara två spakar: <strong>1. Tjäna mer</strong> och <strong>2. Minska utgifter</strong>. Genom att undvika livsstilsinflation när inkomsten ökar, kan du slussa 100% av löneökningar direkt till sparande.
+                </p>
+            </div>
+
+            <!-- Principle 2 -->
+            <div class="glass-card rounded-2xl p-6 border border-gray-800 space-y-3">
+                <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                </div>
+                <h3 class="font-bold text-white text-lg">Frihet Över Prylar</h3>
+                <p class="text-xs text-gray-300 leading-relaxed">
+                    Minimalism handlar inte om snålhet, utan om prioritering. Gabe valde platsfrihet, tid och möjligheten att resa över lyxbilar och dyra kläder. Byt inte ut dina bästa år mot prylar.
+                </p>
+            </div>
+
+            <!-- Principle 3 -->
+            <div class="glass-card rounded-2xl p-6 border border-gray-800 space-y-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-unlock-keyhole"></i>
+                </div>
+                <h3 class="font-bold text-white text-lg">Kassaflöde Före Låsta Konton</h3>
+                <p class="text-xs text-gray-300 leading-relaxed">
+                    Tradiella pensionskonton (som 401k/Roth IRA) låser pengarna till 59.5 års ålder. För frihet i 20- eller 30-årsåldern krävs tillgångar som genererar <strong>tillgängligt kassaflöde</strong> idag.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-800/80 bg-gray-950 py-8 text-xs text-gray-500">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-2">
+                <div class="w-6 h-6 rounded-lg gradient-bg flex items-center justify-center text-white font-bold text-xs">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+                <a href="https://www.youtube.com/watch?v=-iAElCbelj8" target="_blank" rel="noopener noreferrer">
+                    <span class="text-gray-400 font-semibold">Minimalist FIRE Dashboard</span>
+                    <span>— Baserad på Gabe Bult</span>
+                </a>
+            </div>
+            
+            <p class="text-center sm:text-right">
+                Interaktiv visualisering skapad för utbildningssyfte. Ej finansiell rådgivning.
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Currency State (USD vs SEK)
+        let isSEK = false;
+        const exchangeRate = 10.5; // 1 USD = 10.5 SEK
+
+        // Toggle Currency Function
+        function toggleCurrency() {
+            isSEK = !isSEK;
+            
+            const btnLabel = document.getElementById('currency-label');
+            if (isSEK) {
+                btnLabel.innerHTML = `<i class="fa-solid fa-kronor text-brand-400"></i> SEK (kr)`;
+            } else {
+                btnLabel.innerHTML = `<i class="fa-solid fa-dollar-sign text-brand-400"></i> USD ($)`;
+            }
+
+            // Update Currency Symbols
+            document.querySelectorAll('.currency-sym').forEach(el => {
+                el.innerText = isSEK ? 'kr' : '$';
+            });
+
+            // Update static currency values
+            document.querySelectorAll('.currency-value').forEach(el => {
+                const usdVal = parseFloat(el.getAttribute('data-usd'));
+                const prefix = el.getAttribute('data-prefix') || '';
+                const suffix = el.getAttribute('data-suffix') || '';
+
+                if (isSEK) {
+                    const sekVal = Math.round(usdVal * exchangeRate);
+                    el.innerText = `${sekVal.toLocaleString('sv-SE')} kr${suffix}`;
+                } else {
+                    el.innerText = `${prefix}${usdVal.toLocaleString('en-US')}${suffix}`;
+                }
+            });
+
+            // Update Calculator
+            updateCalculator();
+        }
+
+        // Initialize Chart.js Chart
+        let savingsChart;
+        function initChart() {
+            const ctx = document.getElementById('savingsRateChart').getContext('2d');
+            
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(16, 185, 129, 0.8)');
+            gradient.addColorStop(1, 'rgba(16, 185, 129, 0.1)');
+
+            savingsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['10%', '20%', '25%', '35%', '50% (Mål)', '75% (Gabe)', '85%'],
+                    datasets: [{
+                        label: 'År till Ekonomiskt Oberoende',
+                        data: [51, 37, 32, 25, 17, 7, 4],
+                        backgroundColor: [
+                            'rgba(239, 68, 68, 0.6)',
+                            'rgba(245, 158, 11, 0.6)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(16, 185, 129, 0.85)',
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(52, 211, 153, 1)'
+                        ],
+                        borderColor: [
+                            '#ef4444',
+                            '#f59e0b',
+                            '#f59e0b',
+                            '#3b82f6',
+                            '#10b981',
+                            '#10b981',
+                            '#34d399'
+                        ],
+                        borderWidth: 1.5,
+                        borderRadius: 8,
+                        hoverBackgroundColor: '#34d399'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#111827',
+                            titleColor: '#fff',
+                            bodyColor: '#34d399',
+                            borderColor: '#374151',
+                            borderWidth: 1,
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `Tid kvar: ${context.parsed.y} år till frihet`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            },
+                            ticks: {
+                                color: '#9ca3af',
+                                font: {
+                                    family: 'Inter',
+                                    size: 11
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            },
+                            ticks: {
+                                color: '#9ca3af',
+                                font: {
+                                    family: 'Inter',
+                                    size: 11
+                                },
+                                callback: function(value) {
+                                    return value + ' år';
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Arbetsår kvar',
+                                color: '#6b7280',
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Calculator Logic
+        const incomeInput = document.getElementById('calc-income');
+        const expensesInput = document.getElementById('calc-expenses');
+        const sliderInput = document.getElementById('calc-slider');
+
+        function updateCalculator(source) {
+            let income = parseFloat(incomeInput.value) || 0;
+            let expenses = parseFloat(expensesInput.value) || 0;
+
+            if (source === 'slider') {
+                const targetRate = parseFloat(sliderInput.value) / 100;
+                if (income > 0) {
+                    expenses = income * (1 - targetRate);
+                    expensesInput.value = Math.round(expenses);
+                }
+            } else {
+                if (income > 0) {
+                    const currentRate = Math.max(0, Math.min(100, ((income - expenses) / income) * 100));
+                    sliderInput.value = Math.round(currentRate);
+                }
+            }
+
+            const monthlySavings = Math.max(0, income - expenses);
+            const savingsRate = income > 0 ? (monthlySavings / income) * 100 : 0;
+            const yearlySavings = monthlySavings * 12;
+            const yearlyExpenses = expenses * 12;
+
+            // Display Inputs formatted
+            const currSymbol = isSEK ? 'kr' : '$';
+            document.getElementById('calc-income-val').innerText = `${currSymbol}${income.toLocaleString()}`;
+            document.getElementById('calc-expenses-val').innerText = `${currSymbol}${expenses.toLocaleString()}`;
+
+            // Display Results
+            document.getElementById('res-savings-rate').innerText = `${savingsRate.toFixed(1)}%`;
+            document.getElementById('res-monthly-savings').innerText = `${currSymbol}${monthlySavings.toLocaleString()}`;
+            document.getElementById('res-yearly-savings').innerText = `${currSymbol}${yearlySavings.toLocaleString()} / år`;
+
+            // FIRE calculation formula roughly (4% rule = 25x annual expenses, 7% real return)
+            let yearsToFIRE = 0;
+            if (savingsRate > 0 && yearlyExpenses > 0) {
+                const targetPortfolio = yearlyExpenses * 25;
+                const r = 0.07; // 7% annual return
+                if (yearlySavings > 0) {
+                    // Formula: n = ln(1 + (Target * r) / PMT) / ln(1 + r)
+                    yearsToFIRE = Math.log(1 + (targetPortfolio * r) / yearlySavings) / Math.log(1 + r);
+                }
+            } else {
+                yearsToFIRE = 99;
+            }
+
+            const yearsElem = document.getElementById('res-years-to-fire');
+            const commentElem = document.getElementById('res-fire-comment');
+            const badgeElem = document.getElementById('res-rate-badge');
+
+            if (savingsRate <= 0) {
+                yearsElem.innerText = "∞";
+                commentElem.innerText = "Du spenderar allt du tjänar (eller mer). Du kan inte nå ekonomisk frihet utan sparande.";
+                badgeElem.innerText = "Varning: Ingen sparränta";
+                badgeElem.className = "block mt-1 text-[11px] text-red-400 font-medium";
+            } else if (yearsToFIRE > 60) {
+                yearsElem.innerText = "50+";
+                commentElem.innerText = "Med denna låga sparränta tar det över ett halvt sekell till pension. Försök sänka utgifter eller öka inkomsten.";
+                badgeElem.innerText = "Låg Sparränta (Som USA snitt)";
+                badgeElem.className = "block mt-1 text-[11px] text-amber-400 font-medium";
+            } else {
+                yearsElem.innerText = yearsToFIRE.toFixed(1);
+                badgeElem.className = "block mt-1 text-[11px] text-emerald-400 font-medium";
+
+                if (savingsRate >= 70) {
+                    badgeElem.innerText = "Gabe Bult Nivå 🔥";
+                    commentElem.innerText = `Enastående! Med ${savingsRate.toFixed(0)}% sparränta köper du din frihet på endast runt ${yearsToFIRE.toFixed(1)} år.`;
+                } else if (savingsRate >= 50) {
+                    badgeElem.innerText = "Rekommenderat Mål 🎯";
+                    commentElem.innerText = `Grymt jobbat! Med 50%+ sparränta halverar du tiden till pension jämfört med vanliga sparare.`;
+                } else if (savingsRate >= 25) {
+                    badgeElem.innerText = "Godkänd Baslinje 👍";
+                    commentElem.innerText = `Bra start! Överväg att stjäla mer från dig själv på lönedagen för att korta ner de ${yearsToFIRE.toFixed(1)} åren ytterligare.`;
+                } else {
+                    badgeElem.innerText = "Utrymme för Förbättring";
+                    commentElem.innerText = `Du sparar ${savingsRate.toFixed(1)}%. Sikta på att öka sparräntan till minst 35–50% enligt Gabes rutin.`;
+                }
+            }
+
+            // Emergency Fund calculations
+            const emergencyTarget = expenses * 6;
+            const monthsToEmergency = monthlySavings > 0 ? (emergencyTarget / monthlySavings) : 0;
+
+            document.getElementById('res-emergency-target').innerText = `${currSymbol}${emergencyTarget.toLocaleString()}`;
+            document.getElementById('res-emergency-months').innerText = monthsToEmergency > 0 ? `${monthsToEmergency.toFixed(1)} månader` : "N/A";
+        }
+
+        // Attach Event Listeners
+        incomeInput.addEventListener('input', () => updateCalculator('input'));
+        expensesInput.addEventListener('input', () => updateCalculator('input'));
+        sliderInput.addEventListener('input', () => updateCalculator('slider'));
+
+        // On Page Load
+        window.onload = function() {
+            initChart();
+            updateCalculator('input');
+        };
+    </script>
+</body>
+</html>

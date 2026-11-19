@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liggi</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Huvudcontainer för spelet -->
+    <div id="game-wrapper">
+
+        <!-- Startskärm - visas innan spelet börjar -->
+        <div id="start-screen" class="screen">
+            <h1>🐣 Liggi 🥚</h1>
+            <p class="subtitle">Samla ägg och hjälp kycklingarna!</p>
+            <button id="start-button" class="game-button">Tryck för att starta</button>
+            <p class="instructions">
+                Klicka eller peka för att gå dit.<br>
+                Du kan också använda <strong>piltangenter</strong> eller <strong>WASD</strong>.<br><br>
+                🥚 Samla alla <strong>ägg</strong> på banan!<br>
+                🐤🐥 Hjälp de snälla <strong>kycklingarna</strong> — fånga dem!<br>
+                🐓 Akta dig för den arga <strong>tuppen</strong> — Game Over!<br>
+                🏁 Samla allt för att låsa upp målet!<br>
+                💡 Varje ägg ger en ledtråd om påskens djur!
+            </p>
+        </div>
+
+        <!-- Spelskärm - visas under spelets gång -->
+        <div id="game-screen" class="screen hidden">
+            <div id="game-hud">
+                <span id="level-display">Nivå: 1</span>
+                <span id="status-display">🥚 0/0</span>
+            </div>
+            <canvas id="game-canvas"></canvas>
+        </div>
+
+        <!-- Vinstskärm - visas när man når målet -->
+        <div id="win-screen" class="screen hidden">
+            <h1>🎉 Grattis! 🎉</h1>
+            <p class="win-text">Du klarade nivån!</p>
+            <canvas id="chocolate-egg-canvas" width="200" height="260"></canvas>
+            <p class="win-text">Du fick ett chokladägg!</p>
+            <button id="next-level-button" class="game-button">Nästa nivå</button>
+        </div>
+
+        <!-- Game Over-skärm -->
+        <div id="gameover-screen" class="screen hidden">
+            <div class="gameover-card">
+                <p class="gameover-kicker">🐓 Game Over</p>
+                <h1>Aj då!</h1>
+                <p id="gameover-message" class="win-text">Tuppen fångade dig.</p>
+                <p class="gameover-emoji">🐓</p>
+                <button id="retry-button" class="game-button">Försök igen</button>
+                <p id="gameover-hint" class="gameover-hint">Tryck Enter eller mellanslag för att försöka igen</p>
+            </div>
+        </div>
+
+        <!-- Spela igen (efter vinst) -->
+        <div id="complete-screen" class="screen hidden">
+            <h1>🏆 Fantastiskt! 🏆</h1>
+            <p class="win-text">Du klarade alla nivåer!</p>
+            <canvas id="chocolate-egg-canvas-final" width="200" height="260"></canvas>
+            <p class="win-text">Här är ditt stora chokladägg!</p>
+            <button id="restart-button" class="game-button">Spela igen</button>
+        </div>
+
+    </div>
+
+    <!-- Spelskript -->
+    <script src="js/game.js"></script>
+</body>
+</html>

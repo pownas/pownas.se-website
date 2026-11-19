@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="sv" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lånekalkylator & Stresstest för Unga</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <!-- Google Fonts - Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    /* Anpassad styling för reglage/slider */
+    input[type="range"]::-webkit-slider-thumb {
+      background: #4f46e5;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      -webkit-appearance: none;
+    }
+    input[type="range"]::-moz-range-thumb {
+      background: #4f46e5;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col transition-colors duration-200">
+
+  <!-- Huvudcontainer -->
+  <div class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full space-y-6">
+
+    <!-- Header -->
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+      <div>
+        <div class="flex items-center gap-2 text-indigo-600 font-semibold text-sm uppercase tracking-wider">
+          <!-- Sparkles Icon SVG -->
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+          <span>Ung Ekonomi & Trygghet</span>
+        </div>
+        <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight mt-1 text-slate-900">
+          Lånekalkyl & Stresstestare
+        </h1>
+        <p class="text-sm text-slate-500 mt-1 max-w-2xl">
+          Är det värt att låna som ung? Testa om din ekonomi klarar kraftiga räntehöjningar baserat på dina nuvarande och framtida planerade lån.
+        </p>
+      </div>
+      <div class="flex items-center gap-3 bg-indigo-50 px-4 py-3 rounded-xl border border-indigo-100">
+        <!-- PiggyBank Icon SVG -->
+        <svg class="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div>
+          <div class="text-xs text-slate-500">Total skuld i kalkylen</div>
+          <div id="header-total-debt" class="text-lg font-bold text-slate-900">1 800 000 kr</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Huvudinnehåll / Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- VÄNSTER: INPUTS (Ekonomi & Lån) -->
+      <div class="lg:col-span-7 space-y-6">
+
+        <!-- Sektion 1: Din Månadsbudget -->
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+          <h2 class="text-lg font-bold flex items-center gap-2 text-slate-900">
+            <!-- Wallet Icon SVG -->
+            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            1. Din Månadsbudget (Efter skatt)
+          </h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Lön efter skatt (kr/mån)
+              </label>
+              <input 
+                type="number" 
+                id="input-salary" 
+                value="28000" 
+                class="w-full px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 font-medium"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Övrig inkomst t.ex. CSN / Extrajobb
+              </label>
+              <input 
+                type="number" 
+                id="input-other-income" 
+                value="0" 
+                class="w-full px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 font-medium"
+              />
+            </div>
+          </div>
+
+          <div class="border-t border-slate-100 pt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Fasta boendekostnader
+              </label>
+              <input 
+                type="number" 
+                id="input-housing-cost" 
+                value="4500" 
+                class="w-full px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 font-medium"
+              />
+              <span class="text-[10px] text-slate-400">Hyra/avgift, el, försäkring (ej lån)</span>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Levnadskostnad & Mat
+              </label>
+              <input 
+                type="number" 
+                id="input-living-expenses" 
+                value="6500" 
+                class="w-full px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 font-medium"
+              />
+              <span class="text-[10px] text-slate-400">Mat, kläder, transport, nöjen</span>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Månadssparande (Önskat)
+              </label>
+              <input 
+                type="number" 
+                id="input-savings" 
+                value="3000" 
+                class="w-full px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 font-medium"
+              />
+              <span class="text-[10px] text-slate-400">Buffert & långsiktigt sparande</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Sektion 2: Dina Lån -->
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+          <div class="flex justify-between items-center">
+            <h2 class="text-lg font-bold flex items-center gap-2 text-slate-900">
+              <!-- Percent Icon SVG -->
+              <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+              2. Låneportfölj (Från Lånemallen)
+            </h2>
+            <button 
+              id="btn-toggle-add"
+              class="px-3 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors flex items-center gap-1"
+            >
+              <span id="add-btn-icon">+</span> <span id="add-btn-text">Lägg till lån</span>
+            </button>
+          </div>
+
+          <!-- Meddelande om felaktig inmatning -->
+          <div id="validation-error" class="hidden p-3 bg-red-50 text-red-700 rounded-lg text-xs font-medium border border-red-200">
+            Vänligen fyll i alla fält korrekt med positiva tal.
+          </div>
+
+          <!-- Formulär för att lägga till lån (gömd som standard) -->
+          <form id="add-loan-form" class="hidden p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
+            <div class="text-sm font-bold text-slate-800">Nytt lån / Ny kalkyl</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input 
+                type="text" 
+                id="new-loan-name" 
+                placeholder="Lånets namn (t.ex. Billån)" 
+                required
+                class="px-3 py-1.5 text-sm rounded bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              <select
+                id="new-loan-type"
+                class="px-3 py-1.5 text-sm rounded bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="bostad">Bostadslån</option>
+                <option value="privat">Privatlån / Konsumtionslån</option>
+                <option value="studie">Studielån</option>
+              </select>
+              <input 
+                type="number" 
+                id="new-loan-amount" 
+                placeholder="Lånebelopp (kr)" 
+                required
+                class="px-3 py-1.5 text-sm rounded bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              <input 
+                type="number" 
+                step="0.01"
+                id="new-loan-rate" 
+                placeholder="Ränta (%)" 
+                required
+                class="px-3 py-1.5 text-sm rounded bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              <input 
+                type="number" 
+                id="new-loan-years" 
+                placeholder="Amorteringstid (antal år)" 
+                required
+                class="px-3 py-1.5 text-sm rounded bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+            <div class="flex justify-end gap-2">
+              <button 
+                type="button" 
+                id="btn-cancel-add"
+                class="px-3 py-1.5 text-xs text-slate-500 hover:bg-slate-200 rounded"
+              >
+                Avbryt
+              </button>
+              <button 
+                type="submit" 
+                class="px-3 py-1.5 text-xs bg-indigo-600 text-white rounded font-bold hover:bg-indigo-700"
+              >
+                Spara lån
+              </button>
+            </div>
+          </form>
+
+          <!-- Lista med lån -->
+          <div id="loans-list" class="space-y-3">
+            <!-- Renderas via JS -->
+          </div>
+
+          <p class="text-[10px] text-slate-400 italic mt-2">
+            * Ränteavdraget i listan är beräknat på 30% skattereduktion av räntekostnaderna, vilket dras av automatiskt i din deklaration.
+          </p>
+        </section>
+
+      </div>
+
+      <!-- HÖGER: ANALYS, STRESSTEST & REKOMMENDATIONER -->
+      <div class="lg:col-span-5 space-y-6">
+
+        <!-- Sektion 3: Stresstest simulator -->
+        <section class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 rounded-2xl shadow-lg border border-indigo-900/30 space-y-4">
+          <div class="flex justify-between items-center">
+            <h2 class="text-lg font-bold flex items-center gap-2">
+              <!-- ShieldAlert Icon SVG -->
+              <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              3. Räntestresstest
+            </h2>
+            <span class="px-2.5 py-1 text-xs font-semibold bg-indigo-500/20 text-indigo-300 rounded-full border border-indigo-400/20">
+              Risktestare
+            </span>
+          </div>
+
+          <p class="text-xs text-indigo-200">
+            Det viktigaste stresstestet du kan göra. Banker räknar oftast med att din ekonomi ska klara en kalkylränta på <b>6–8 %</b> för att bevilja lån. Dra i reglaget för att simulera en räntechock!
+          </p>
+
+          <!-- Slider -->
+          <div class="space-y-2 pt-2">
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-300">Simulerad stresstest-ränta:</span>
+              <span id="stress-rate-display" class="font-extrabold text-indigo-300 text-xl">7.0%</span>
+            </div>
+            <input 
+              type="range" 
+              id="slider-stress-rate"
+              min="1.0" 
+              max="15.0" 
+              step="0.1" 
+              value="7.0" 
+              class="w-full h-2 bg-indigo-950/60 rounded-lg appearance-none cursor-pointer border border-indigo-800"
+            />
+            <div class="flex justify-between text-[10px] text-slate-400">
+              <span>1.0% (Historiskt låg)</span>
+              <span>7.0% (Bankkrav)</span>
+              <span>15.0% (Krisnivå)</span>
+            </div>
+          </div>
+
+          <!-- Jämförelsetabell -->
+          <div class="grid grid-cols-2 gap-4 border-t border-indigo-900/50 pt-4 text-sm">
+            <div class="space-y-1">
+              <div class="text-xs text-slate-400">Idag (Aktuella räntor)</div>
+              <div id="current-total-cost" class="text-base font-bold text-slate-200">
+                0 kr/mån
+              </div>
+              <div id="current-cost-breakdown" class="text-[10px] text-slate-400">
+                Ränta (0 kr) + Amortering (0 kr)
+              </div>
+            </div>
+
+            <div class="space-y-1 border-l border-indigo-900/50 pl-4">
+              <div class="text-xs text-indigo-300">Vid stresstest-ränta</div>
+              <div id="stress-total-cost" class="text-base font-bold text-indigo-200">
+                0 kr/mån
+              </div>
+              <div id="stress-cost-breakdown" class="text-[10px] text-indigo-300">
+                Ränta (0 kr) + Amortering (0 kr)
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Sektion 4: KALP - Kvar att leva på-analys -->
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+          <h2 class="text-lg font-bold flex items-center gap-2 text-slate-900">
+            <!-- TrendingUp Icon SVG -->
+            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            4. KALP-Analys (Kvar Att Leva På)
+          </h2>
+
+          <div class="space-y-4">
+            
+            <!-- Nuvarande status -->
+            <div class="p-4 rounded-xl border border-slate-100 bg-slate-50 space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-slate-500 uppercase">Idag (Aktuella räntor)</span>
+                <span id="current-kalp-badge" class="px-2 py-0.5 rounded text-xs font-bold">
+                  Laddar...
+                </span>
+              </div>
+              <div class="flex justify-between items-end">
+                <div>
+                  <span id="current-kalp-value" class="text-2xl font-black text-slate-900">
+                    0 kr
+                  </span>
+                  <span class="text-xs text-slate-500"> / mån kvar</span>
+                </div>
+              </div>
+              <p id="current-kalp-desc" class="text-xs text-slate-600 leading-relaxed">
+                Beräknar...
+              </p>
+            </div>
+
+            <!-- Stresstestad status -->
+            <div class="p-4 rounded-xl border border-indigo-100 bg-indigo-50/10 space-y-2">
+              <div class="flex justify-between items-center">
+                <span id="stress-kalp-title" class="text-xs font-bold text-indigo-600 uppercase">Efter ränteökning (till 7.0%)</span>
+                <span id="stress-kalp-badge" class="px-2 py-0.5 rounded text-xs font-bold">
+                  Laddar...
+                </span>
+              </div>
+              <div class="flex justify-between items-end">
+                <div>
+                  <span id="stress-kalp-value" class="text-2xl font-black text-slate-900">
+                    0 kr
+                  </span>
+                  <span class="text-xs text-slate-500"> / mån kvar</span>
+                </div>
+              </div>
+              <p id="stress-kalp-desc" class="text-xs text-slate-600 leading-relaxed">
+                Beräknar...
+              </p>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Sektion 5: Pedagogisk guide -->
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+          <h3 class="text-sm font-bold flex items-center gap-1.5 text-slate-900">
+            <!-- BookOpen Icon SVG -->
+            <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            Ska man låna pengar i ung ålder?
+          </h3>
+          <div class="space-y-2.5 text-xs text-slate-600 leading-relaxed">
+            <p>
+              Att låna till en <b>bostad</b> (ett så kallat produktivt lån) ses historiskt som en bra investering eftersom pengarna går till en real tillgång som kan stiga i värde. Att låna till <b>konsumtion, bilar eller elektronik</b> (konsumtionslån) innebär oftast att tillgången snabbt tappar värde, samtidigt som skulden kvarstår.
+            </p>
+            <div class="p-3 bg-amber-50 text-amber-800 rounded-lg flex gap-2 items-start border border-amber-100">
+              <!-- Info Icon SVG -->
+              <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <div>
+                <span class="font-semibold">Konsumentverkets rekommendation:</span> En ensamstående vuxen bör ha minst cirka <b>9 500 kr kvar</b> att leva på efter att boende och lån är betalda (KALP-kalkyl). Detta ska täcka mat, kläder, nöjen och försäkringar.
+              </div>
+            </div>
+            <div class="p-3 bg-indigo-50 text-indigo-800 rounded-lg flex gap-2 items-start border border-indigo-100">
+              <!-- CheckCircle Icon SVG -->
+              <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <div>
+                <span class="font-semibold">Lånemallen tips:</span> Ditt bostadslån på 1,6 miljoner kr kostar en del i amortering eftersom amorteringstiden är satt till 40 år. I verkligheten har svenska bolån ofta flexibla amorteringskrav (1–2 % av skuldsumman per år).
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+    </div>
+
+    <!-- Footer info -->
+    <footer class="text-center text-xs text-slate-400 py-4 border-t border-slate-200 mt-8">
+      UngEkonomi Kalkylator &copy; 2026 - Baserad på din importerade Lånemall.
+    </footer>
+
+  </div>
+
+  <!-- JavaScript Logik -->
+  <script>
+    // Applikationens tillstånd (State)
+    const state = {
+      loans: [
+        { id: '1', name: 'Bostadslån (Lånemallen)', amount: 1600000, rate: 2.6, years: 40, type: 'bostad' },
+        { id: '2', name: 'Privatlån/Avbetalning (Lånemallen)', amount: 200000, rate: 4.0, years: 6, type: 'privat' }
+      ],
+      monthlySalary: 28000,
+      otherIncome: 0,
+      housingCost: 4500,
+      livingExpenses: 6500,
+      monthlySavings: 3000,
+      stressRate: 7.0,
+      showAddForm: false
+    };
+
+    // DOM Element referenser
+    const elSalary = document.getElementById('input-salary');
+    const elOtherIncome = document.getElementById('input-other-income');
+    const elHousingCost = document.getElementById('input-housing-cost');
+    const elLivingExpenses = document.getElementById('input-living-expenses');
+    const elSavings = document.getElementById('input-savings');
+    
+    const elSliderStressRate = document.getElementById('slider-stress-rate');
+    const elStressRateDisplay = document.getElementById('stress-rate-display');
+    const elStressKalpTitle = document.getElementById('stress-kalp-title');
+
+    const elHeaderTotalDebt = document.getElementById('header-total-debt');
+    const elLoansList = document.getElementById('loans-list');
+    
+    const elCurrentTotalCost = document.getElementById('current-total-cost');
+    const elCurrentCostBreakdown = document.getElementById('current-cost-breakdown');
+    
+    const elStressTotalCost = document.getElementById('stress-total-cost');
+    const elStressCostBreakdown = document.getElementById('stress-cost-breakdown');
+    
+    const elCurrentKalpValue = document.getElementById('current-kalp-value');
+    const elCurrentKalpBadge = document.getElementById('current-kalp-badge');
+    const elCurrentKalpDesc = document.getElementById('current-kalp-desc');
+    
+    const elStressKalpValue = document.getElementById('stress-kalp-value');
+    const elStressKalpBadge = document.getElementById('stress-kalp-badge');
+    const elStressKalpDesc = document.getElementById('stress-kalp-desc');
+
+    const elBtnToggleAdd = document.getElementById('btn-toggle-add');
+    const elAddBtnIcon = document.getElementById('add-btn-icon');
+    const elAddBtnText = document.getElementById('add-btn-text');
+    const elAddForm = document.getElementById('add-loan-form');
+    const elBtnCancelAdd = document.getElementById('btn-cancel-add');
+    const elValidationError = document.getElementById('validation-error');
+
+    // Beräkna ränteavdrag schablon (30% upp till 100k räntekostnad, därefter 21%)
+    function calculateTaxDeduction(annualInterest) {
+      if (annualInterest <= 100000) {
+        return annualInterest * 0.30;
+      } else {
+        return 30000 + (annualInterest - 100000) * 0.21;
+      }
+    }
+
+    // Beräkna nuvarande lånesammanställning
+    function getLoanSummary() {
+      let totalAmount = 0;
+      let totalMonthlyAmortization = 0;
+      let totalAnnualInterestCurrent = 0;
+
+      state.loans.forEach(loan => {
+        totalAmount += loan.amount;
+        if (loan.years > 0) {
+          totalMonthlyAmortization += loan.amount / (loan.years * 12);
+        }
+        totalAnnualInterestCurrent += loan.amount * (loan.rate / 100);
+      });
+
+      const taxDeductionCurrent = calculateTaxDeduction(totalAnnualInterestCurrent);
+      const netAnnualInterestCurrent = totalAnnualInterestCurrent - taxDeductionCurrent;
+      const netMonthlyInterestCurrent = netAnnualInterestCurrent / 12;
+
+      return {
+        totalAmount,
+        amortization: Math.round(totalMonthlyAmortization),
+        grossInterest: Math.round(totalAnnualInterestCurrent / 12),
+        netInterest: Math.round(netMonthlyInterestCurrent),
+        totalCost: Math.round(totalMonthlyAmortization + netMonthlyInterestCurrent)
+      };
+    }
+
+    // Beräkna stresstestad lånesammanställning
+    function getStressSummary() {
+      let totalMonthlyAmortization = 0;
+      let totalAnnualInterestStress = 0;
+
+      state.loans.forEach(loan => {
+        totalAnnualInterestStress += loan.amount * (state.stressRate / 100);
+        if (loan.years > 0) {
+          totalMonthlyAmortization += loan.amount / (loan.years * 12);
+        }
+      });
+
+      const taxDeductionStress = calculateTaxDeduction(totalAnnualInterestStress);
+      const netAnnualInterestStress = totalAnnualInterestStress - taxDeductionStress;
+      const netMonthlyInterestStress = netAnnualInterestStress / 12;
+
+      return {
+        grossInterest: Math.round(totalAnnualInterestStress / 12),
+        netInterest: Math.round(netMonthlyInterestStress),
+        totalCost: Math.round(totalMonthlyAmortization + netMonthlyInterestStress)
+      };
+    }
+
+    // Bedöm KALP-status utifrån rekommendationer
+    function getKalpStatus(kalpValue) {
+      if (kalpValue >= 9000) {
+        return {
+          label: 'Mycket god marginal',
+          colorClass: 'text-emerald-600 bg-emerald-50 border-emerald-200 border',
+          desc: 'Du har bra utrymme kvar i plånboken. Din ekonomi klarar detta scenario utan problem.'
+        };
+      } else if (kalpValue >= 4000) {
+        return {
+          label: 'Godtagbar marginal',
+          colorClass: 'text-amber-600 bg-amber-50 border-amber-200 border',
+          desc: 'Du klarar dig, men marginalerna är ganska snäva. Du kan behöva skära ner på sparande eller resor vid denna nivå.'
+        };
+      } else if (kalpValue >= 0) {
+        return {
+          label: 'Kritisk marginal',
+          colorClass: 'text-orange-600 bg-orange-50 border-orange-200 border',
+          desc: 'Väldigt lite kvar att leva på. Inget utrymme för oförutsedda utgifter eller buffertsparande.'
+        };
+      } else {
+        return {
+          label: 'Underskott',
+          colorClass: 'text-red-600 bg-red-50 border-red-200 border',
+          desc: 'Inkomsterna täcker inte lån och levnadskostnader i detta scenario! Du går back varje månad.'
+        };
+      }
+    }
+
+    // Rendera lån-listan i UI:t
+    function renderLoans() {
+      elLoansList.innerHTML = '';
+
+      if (state.loans.length === 0) {
+        elLoansList.innerHTML = '<p class="text-sm text-slate-400 italic text-center py-4">Inga lån tillagda. Klicka ovan för att lägga till ett lån!</p>';
+        return;
+      }
+
+      state.loans.forEach(loan => {
+        const monthlyAmortization = loan.years > 0 ? (loan.amount / (loan.years * 12)) : 0;
+        const monthlyInterestNet = (loan.amount * (loan.rate / 100) / 12) * 0.70; // 30% avdrag schablon
+
+        const loanDiv = document.createElement('div');
+        loanDiv.className = 'flex flex-col md:flex-row justify-between items-start md:items-center p-4 bg-slate-50 rounded-xl border border-slate-100 gap-4';
+        
+        loanDiv.innerHTML = `
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full ${loan.type === 'bostad' ? 'bg-emerald-500' : 'bg-rose-500'}"></span>
+              <span class="font-bold text-slate-900 text-sm">${loan.name}</span>
+            </div>
+            <div class="text-xs text-slate-500">
+              Skuld: <span class="font-semibold text-slate-700">${Math.round(loan.amount).toLocaleString('sv-SE')} kr</span> | År: <span class="font-semibold text-slate-700">${loan.years} år</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 md:flex items-center gap-4 md:gap-6 text-xs w-full md:w-auto border-t md:border-t-0 pt-3 md:pt-0 border-slate-200">
+            <div>
+              <div class="text-slate-400">Avtalad Ränta</div>
+              <div class="font-bold text-slate-700">${loan.rate.toFixed(2)} %</div>
+            </div>
+            <div>
+              <div class="text-slate-400">Amortering/mån</div>
+              <div class="font-bold text-slate-700">${Math.round(monthlyAmortization).toLocaleString('sv-SE')} kr</div>
+            </div>
+            <div>
+              <div class="text-slate-400">Efter ränteavdrag *</div>
+              <div class="font-bold text-indigo-600">${Math.round(monthlyInterestNet).toLocaleString('sv-SE')} kr</div>
+            </div>
+          </div>
+
+          <button 
+            onclick="deleteLoan('${loan.id}')"
+            class="p-1.5 text-slate-400 hover:text-red-500 rounded-lg hover:bg-red-50 self-end md:self-auto transition-colors"
+            title="Ta bort lån"
+          >
+            <!-- Trash Icon SVG -->
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          </button>
+        `;
+        elLoansList.appendChild(loanDiv);
+      });
+    }
+
+    // Ta bort lån (görs tillgänglig i globalscope för inline onclick)
+    window.deleteLoan = function(id) {
+      state.loans = state.loans.filter(l => l.id !== id);
+      renderAll();
+    };
+
+    // Huvudsaklig renderare
+    function renderAll() {
+      // 1. Rendera lånlistan
+      renderLoans();
+
+      // 2. Beräkna värden
+      const currentLoanSummary = getLoanSummary();
+      const stressLoanSummary = getStressSummary();
+
+      // 3. Uppdatera headers och vyer
+      elHeaderTotalDebt.innerText = `${currentLoanSummary.totalAmount.toLocaleString('sv-SE')} kr`;
+      elStressRateDisplay.innerText = `${state.stressRate.toFixed(1)}%`;
+      elStressKalpTitle.innerText = `Efter ränteökning (till ${state.stressRate.toFixed(1)}%)`;
+
+      // 4. Nuvarande månadskostnad
+      elCurrentTotalCost.innerText = `${currentLoanSummary.totalCost.toLocaleString('sv-SE')} kr/mån`;
+      elCurrentCostBreakdown.innerText = `Ränta: ${currentLoanSummary.netInterest.toLocaleString('sv-SE')} kr + Amortering: ${currentLoanSummary.amortization.toLocaleString('sv-SE')} kr`;
+
+      // 5. Stresstestad månadskostnad
+      elStressTotalCost.innerText = `${stressLoanSummary.totalCost.toLocaleString('sv-SE')} kr/mån`;
+      elStressCostBreakdown.innerText = `Ränta: ${stressLoanSummary.netInterest.toLocaleString('sv-SE')} kr + Amortering: ${currentLoanSummary.amortization.toLocaleString('sv-SE')} kr`;
+
+      // 6. KALP beräkning
+      const totalIncome = state.monthlySalary + state.otherIncome;
+      const totalNonLoanExpenses = state.housingCost + state.livingExpenses + state.monthlySavings;
+
+      const kalpCurrentValue = totalIncome - totalNonLoanExpenses - currentLoanSummary.totalCost;
+      const kalpStressValue = totalIncome - totalNonLoanExpenses - stressLoanSummary.totalCost;
+
+      // Rendera KALP idag
+      const statusCurrent = getKalpStatus(kalpCurrentValue);
+      elCurrentKalpValue.innerText = `${kalpCurrentValue.toLocaleString('sv-SE')} kr`;
+      elCurrentKalpBadge.innerText = statusCurrent.label;
+      elCurrentKalpBadge.className = `px-2 py-0.5 rounded text-xs font-bold ${statusCurrent.colorClass}`;
+      elCurrentKalpDesc.innerText = statusCurrent.desc;
+
+      // Rendera KALP stressad
+      const statusStress = getKalpStatus(kalpStressValue);
+      elStressKalpValue.innerText = `${kalpStressValue.toLocaleString('sv-SE')} kr`;
+      elStressKalpBadge.innerText = statusStress.label;
+      elStressKalpBadge.className = `px-2 py-0.5 rounded text-xs font-bold ${statusStress.colorClass}`;
+      elStressKalpDesc.innerText = statusStress.desc;
+    }
+
+    // Event Listeners för formulär & reglage
+    elSalary.addEventListener('input', (e) => {
+      state.monthlySalary = Math.max(0, parseInt(e.target.value) || 0);
+      renderAll();
+    });
+    elOtherIncome.addEventListener('input', (e) => {
+      state.otherIncome = Math.max(0, parseInt(e.target.value) || 0);
+      renderAll();
+    });
+    elHousingCost.addEventListener('input', (e) => {
+      state.housingCost = Math.max(0, parseInt(e.target.value) || 0);
+      renderAll();
+    });
+    elLivingExpenses.addEventListener('input', (e) => {
+      state.livingExpenses = Math.max(0, parseInt(e.target.value) || 0);
+      renderAll();
+    });
+    elSavings.addEventListener('input', (e) => {
+      state.monthlySavings = Math.max(0, parseInt(e.target.value) || 0);
+      renderAll();
+    });
+
+    elSliderStressRate.addEventListener('input', (e) => {
+      state.stressRate = parseFloat(e.target.value);
+      renderAll();
+    });
+
+    // Visa/göm formulär för nytt lån
+    elBtnToggleAdd.addEventListener('click', () => {
+      state.showAddForm = !state.showAddForm;
+      toggleAddFormUI();
+    });
+
+    elBtnCancelAdd.addEventListener('click', () => {
+      state.showAddForm = false;
+      toggleAddFormUI();
+    });
+
+    function toggleAddFormUI() {
+      if (state.showAddForm) {
+        elAddForm.classList.remove('hidden');
+        elAddBtnIcon.innerText = '−';
+        elAddBtnText.innerText = 'Göm formulär';
+      } else {
+        elAddForm.classList.add('hidden');
+        elAddBtnIcon.innerText = '+';
+        elAddBtnText.innerText = 'Lägg till lån';
+        elValidationError.classList.add('hidden');
+      }
+    }
+
+    // Lägg till lån submit handler
+    elAddForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('new-loan-name').value;
+      const type = document.getElementById('new-loan-type').value;
+      const amount = parseFloat(document.getElementById('new-loan-amount').value);
+      const rate = parseFloat(document.getElementById('new-loan-rate').value);
+      const years = parseFloat(document.getElementById('new-loan-years').value);
+
+      if (!name || isNaN(amount) || amount <= 0 || isNaN(rate) || rate < 0 || isNaN(years) || years <= 0) {
+        elValidationError.classList.remove('hidden');
+        return;
+      }
+
+      elValidationError.classList.add('hidden');
+
+      const newLoan = {
+        id: Date.now().toString(),
+        name,
+        amount,
+        rate,
+        years,
+        type
+      };
+
+      state.loans.push(newLoan);
+      
+      // Återställ formulär
+      elAddForm.reset();
+      state.showAddForm = false;
+      toggleAddFormUI();
+      
+      renderAll();
+    });
+
+    // Starta renderingen vid laddning
+    window.onload = function() {
+      renderAll();
+    };
+  </script>
+</body>
+</html>

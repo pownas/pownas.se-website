@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="sv" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skaparens vs Administratörens Schema - Interaktiv Infografik</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            maker: {
+              light: '#f0fdf4',
+              border: '#bbf7d0',
+              text: '#166534',
+              accent: '#10b981',
+              darkBg: '#064e3b',
+              darkText: '#a7f3d0'
+            },
+            manager: {
+              light: '#eff6ff',
+              border: '#bfdbfe',
+              text: '#1e40af',
+              accent: '#3b82f6',
+              darkBg: '#1e3a8a',
+              darkText: '#bfdbfe'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Google Fonts för vacker typografi -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .flow-glow {
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+    }
+    .dark .flow-glow {
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen transition-colors duration-200 pb-12">
+
+  <!-- ================= HEADER & THEME TOGGLE ================= -->
+  <header class="max-w-6xl mx-auto px-4 pt-6 pb-4 flex flex-col md:flex-row justify-between items-center border-b border-slate-200 dark:border-slate-800 gap-4">
+    <div class="text-center md:text-left">
+      <span class="text-xs font-bold tracking-widest text-emerald-600 dark:text-emerald-400 uppercase bg-emerald-100 dark:bg-emerald-950/50 px-3 py-1 rounded-full">Personlig Utveckling &amp; Tid</span>
+      <h1 class="text-2xl md:text-3xl font-extrabold mt-2 tracking-tight">Maker's vs. Manager's Schedule</h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Ett koncept av Paul Graham för att optimera din mentala energi</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <!-- Tillgänglighetsknapp för Tema-växling -->
+      <button id="theme-toggle" aria-label="Växla mellan mörkt och ljust läge" class="p-3 rounded-xl bg-slate-200 dark:bg-slate-800 hover:ring-2 hover:ring-emerald-500 transition-all focus:outline-none">
+        <!-- Sol-ikon (visas i mörkt läge) -->
+        <svg id="sun-icon" class="w-5 h-5 text-amber-500 hidden" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 17.95a1 1 0 01-1.414 0l-.707-.707a1 1 0 011.414-1.414l.707.707a1 1 0 010 1.414zm0-12.728a1 1 0 010-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707a1 1 0 01-1.414 0zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" />
+        </svg>
+        <!-- Måne-ikon (visas i ljust läge) -->
+        <svg id="moon-icon" class="w-5 h-5 text-slate-700 dark:text-slate-300" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 mt-6">
+    <!-- Intro text -->
+    <section class="mb-8 p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
+      <h2 class="text-lg font-bold mb-2 flex items-center gap-2">
+        <span class="text-2xl">🧠</span> Varför känner du dig dränerad?
+      </h2>
+      <p class="text-slate-600 dark:text-slate-300 leading-relaxed text-sm md:text-base">
+        När vi tvingas pressa in djupt tänkande mellan korta, administrativa möten uppstår en 
+        <strong class="text-red-500 font-semibold">kognitiv konflikt</strong>. Systemutveckling, skrivande och problemlösning 
+        tar tid att ladda in i hjärnans arbetsminne. Varje avbrott startar om denna uppstartsprocess, vilket leder till enorm stress.
+      </p>
+    </section>
+
+    <!-- ================= THE TWO SCHEDULES GRID ================= -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      
+      <!-- MAKER'S SCHEDULE CARD -->
+      <section class="bg-emerald-50/50 dark:bg-emerald-950/20 border-2 border-emerald-200 dark:border-emerald-900/60 rounded-2xl p-6 flex flex-col justify-between shadow-sm">
+        <div>
+          <div class="flex items-center gap-3 mb-4">
+            <span class="p-3 bg-emerald-600 rounded-xl text-white">
+              <!-- Skapar-ikon (Penna/Kugghjul) -->
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </span>
+            <div>
+              <h2 class="text-xl font-extrabold text-emerald-900 dark:text-emerald-300">Skaparens Schema</h2>
+              <p class="text-xs font-bold text-emerald-700 dark:text-emerald-400 tracking-wider uppercase">Maker's Schedule</p>
+            </div>
+          </div>
+          
+          <h3 class="text-sm font-bold text-emerald-800 dark:text-emerald-400 mt-4 mb-2">ANPASSAT FÖR:</h3>
+          <p class="text-sm text-slate-700 dark:text-slate-300 mb-4">
+            Djupt, kreativt och fokuserat arbete som kräver mental närvaro och flow. T.ex. skriva kod, designa arkitektur, lösa komplexa problem.
+          </p>
+
+          <h3 class="text-sm font-bold text-emerald-800 dark:text-emerald-400 mb-2">TIDSTRUKTUR:</h3>
+          <div class="bg-emerald-600 text-white rounded-lg p-3 text-center text-xs font-bold mb-4">
+            Stora, obrutna block på 4+ timmar (Halv- eller heldagar)
+          </div>
+
+          <h3 class="text-sm font-bold text-emerald-800 dark:text-emerald-400 mb-2">UTMANINGAR:</h3>
+          <ul class="space-y-2 text-sm text-slate-700 dark:text-slate-300">
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-500">✓</span> 
+              <span>Kräver en lång "uppstartstid" för att ladda in problemet i minnet.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-500">✓</span> 
+              <span>Extremt känsligt för avbrott. Ett möte "förstör" ofta en hel halvdag.</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- MANAGER'S SCHEDULE CARD -->
+      <section class="bg-blue-50/50 dark:bg-blue-950/20 border-2 border-blue-200 dark:border-blue-900/60 rounded-2xl p-6 flex flex-col justify-between shadow-sm">
+        <div>
+          <div class="flex items-center gap-3 mb-4">
+            <span class="p-3 bg-blue-600 rounded-xl text-white">
+              <!-- Kalender-ikon -->
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </span>
+            <div>
+              <h2 class="text-xl font-extrabold text-blue-900 dark:text-blue-300">Administratörens Schema</h2>
+              <p class="text-xs font-bold text-blue-700 dark:text-blue-400 tracking-wider uppercase">Manager's Schedule</p>
+            </div>
+          </div>
+          
+          <h3 class="text-sm font-bold text-blue-800 dark:text-blue-400 mt-4 mb-2">ANPASSAT FÖR:</h3>
+          <p class="text-sm text-slate-700 dark:text-slate-300 mb-4">
+            Planering, snabb kommunikation, ledning och beslutsfattande. T.ex. styrelsemöten, mejl, korta avstämningar, eventplanering.
+          </p>
+
+          <h3 class="text-sm font-bold text-blue-800 dark:text-blue-400 mb-2">TIDSTRUKTUR:</h3>
+          <div class="grid grid-cols-4 gap-1 text-center text-xs font-bold text-white mb-4">
+            <div class="bg-blue-600 p-2 rounded">Möte</div>
+            <div class="bg-blue-500 p-2 rounded">Mejl</div>
+            <div class="bg-blue-600 p-2 rounded">Beslut</div>
+            <div class="bg-blue-500 p-2 rounded">Möte</div>
+          </div>
+
+          <h3 class="text-sm font-bold text-blue-800 dark:text-blue-400 mb-2">STYRKOR:</h3>
+          <ul class="space-y-2 text-sm text-slate-700 dark:text-slate-300">
+            <li class="flex items-start gap-2">
+              <span class="text-blue-500">✓</span> 
+              <span>Bygger på ständiga och snabba kontextbyten.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-blue-500">✓</span> 
+              <span>Tiden mäts i 30- till 60-minutersintervaller.</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ================= INTERACTIVE SIMULATION ================= -->
+    <section class="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 mb-8">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div>
+          <h2 class="text-lg font-extrabold flex items-center gap-2">
+            <span class="text-xl">⚡</span> Tidssimulator: Hur krocken uppstår
+          </h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Testa att lägga till ett möte mitt på dagen och se hur det förstör skaparens mentala flöde.</p>
+        </div>
+        <button id="sim-meeting-btn" class="w-full md:w-auto px-5 py-3 bg-red-600 hover:bg-red-700 active:scale-95 text-white font-bold rounded-xl shadow-lg shadow-red-500/20 dark:shadow-red-950/40 transition-all text-sm flex items-center justify-center gap-2">
+          <span class="text-lg">📅</span> Lägg till ett möte kl. 13:00
+        </button>
+      </div>
+
+      <!-- Simulator Visual Grid -->
+      <div class="space-y-6">
+        
+        <!-- Maker Timeline View -->
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400">SKAPARENS DAG (Maker's Day)</span>
+            <span class="text-xs px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 font-semibold" id="maker-flow-status">Mental energi / Flow: 95%</span>
+          </div>
+          <!-- Progress bar energy tracker -->
+          <div class="w-full bg-slate-200 dark:bg-slate-800 h-4 rounded-full overflow-hidden mb-3">
+            <div id="maker-energy-bar" class="bg-emerald-500 h-full w-[95%] transition-all duration-500 ease-out flow-glow"></div>
+          </div>
+          <!-- Hours Representation -->
+          <div class="grid grid-cols-8 gap-1" id="maker-timeline">
+            <!-- Normal day: 8 blocks of deep work -->
+            <div class="bg-emerald-600 text-white p-2 rounded text-center text-[10px] md:text-xs font-bold h-12 flex items-center justify-center col-span-4 transition-all duration-300">Djupt Fokus (Förmiddag)</div>
+            <div class="bg-emerald-600 text-white p-2 rounded text-center text-[10px] md:text-xs font-bold h-12 flex items-center justify-center col-span-4 transition-all duration-300">Djupt Fokus (Eftermiddag)</div>
+          </div>
+        </div>
+
+        <!-- Manager Timeline View -->
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-sm font-bold text-blue-600 dark:text-blue-400">ADMINISTRATÖRENS DAG (Manager's Day)</span>
+            <span class="text-xs px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 font-semibold" id="manager-flow-status">Effektivitet: 90%</span>
+          </div>
+          <div class="w-full bg-slate-200 dark:bg-slate-800 h-4 rounded-full overflow-hidden mb-3">
+            <div id="manager-energy-bar" class="bg-blue-500 h-full w-[90%] transition-all duration-500 ease-out"></div>
+          </div>
+          <div class="grid grid-cols-8 gap-1">
+            <div class="bg-blue-600 text-white p-2 rounded text-center text-[10px] md:text-xs font-bold h-12 flex items-center justify-center col-span-2">Styrelsemöte</div>
+            <div class="bg-blue-500 text-white p-2 rounded text-center text-[10px] md:text-xs font-bold h-12 flex items-center justify-center col-span-2">Mejlkorg</div>
+            <div class="bg-blue-600 text-white p-2 rounded text-center text-[10px] md:text-xs font-bold h-12 flex items-center justify-center col-span-2">Intern avstämning</div>
+            <div class="bg-blue-500 text-white p-2 rounded text-center text-[10px] md:text-xs font-bold h-12 flex items-center justify-center col-span-2">Beslut</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Explanation of the simulator state -->
+      <div id="sim-explanation" class="mt-4 p-4 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-900 dark:text-emerald-300 rounded-xl text-sm border border-emerald-100 dark:border-emerald-900/40">
+        <strong>Optimalt tillstånd:</strong> Utan möten har skaparen två massiva block av ostört fokus. Hjärnan når djup koncentration ("flow").
+      </div>
+    </section>
+
+    <!-- ================= PRACTICAL ADVICE ================= -->
+    <section>
+      <h2 class="text-xl font-extrabold mb-4 flex items-center gap-2">
+        <span class="text-xl">🛠️</span> Så tillämpar du detta i praktiken
+      </h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Tip 1 -->
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-lg mb-4">1</div>
+            <h3 class="font-extrabold text-base mb-2">Tidsblockering</h3>
+            <p class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-2">Time Blocking</p>
+            <p class="text-sm text-slate-600 dark:text-slate-400">
+              Freda specifika halvdagar (eller heldagar) i din kalender helt från möten. Behandla dessa tidsblock med absolut respekt. Under denna tid är du enbart en skapare.
+            </p>
+          </div>
+        </div>
+
+        <!-- Tip 2 -->
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950/50 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-lg mb-4">2</div>
+            <h3 class="font-extrabold text-base mb-2">Klumpa ihop</h3>
+            <p class="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-2">Batching</p>
+            <p class="text-sm text-slate-600 dark:text-slate-400">
+              Samla uppgifter som rör organisering, e-post och administration till specifika "manager-fönster" under veckan istället för att sprida ut dem över alla dagar.
+            </p>
+          </div>
+        </div>
+
+        <!-- Tip 3 -->
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-cyan-100 dark:bg-cyan-950/50 flex items-center justify-center text-cyan-600 dark:text-cyan-400 font-bold text-lg mb-4">3</div>
+            <h3 class="font-extrabold text-base mb-2">Kommunicera dina zoner</h3>
+            <p class="text-xs font-semibold text-cyan-600 dark:text-cyan-400 uppercase tracking-wider mb-2">Kommunikation</p>
+            <p class="text-sm text-slate-600 dark:text-slate-400">
+              Var tydlig med dina kollegor när du är tillgänglig för snabba puckar (Manager Time) och när du sitter i djupt fokus (Maker Time) och därmed har längre svarstid.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Reflexion Question -->
+    <section class="mt-8 p-6 bg-emerald-950 text-emerald-100 rounded-2xl shadow-lg border border-emerald-900 text-center">
+      <h2 class="text-lg font-bold mb-2">Fundera på din egen vecka 🤔</h2>
+      <p class="text-emerald-300 text-sm md:text-base max-w-2xl mx-auto">
+        Styrs din tid i första hand av skaparens eller administratörens schema? Hur kan du börja införa din första ostörda "skapar-zon" redan nästa vecka?
+      </p>
+    </section>
+
+  </main>
+
+  <footer class="max-w-6xl mx-auto px-4 mt-8 text-center text-xs text-slate-400 dark:text-slate-600">
+    <p>Baserad på Paul Grahams kända essä "Maker's Schedule, Manager's Schedule" (2009).</p>
+  </footer>
+
+  <!-- ================= LOGIK FÖR INTERAKTIVITET ================= -->
+  <script>
+    // --- Mörkt/Ljust läge växling ---
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const sunIcon = document.getElementById('sun-icon');
+    const moonIcon = document.getElementById('moon-icon');
+    const htmlElement = document.documentElement;
+
+    // Känn av systeminställning eller tidigare val
+    if (localStorage.getItem('color-theme') === 'light' || (!('color-theme' in localStorage) && !window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      htmlElement.classList.remove('dark');
+      sunIcon.classList.add('hidden');
+      moonIcon.classList.remove('hidden');
+    } else {
+      htmlElement.classList.add('dark');
+      sunIcon.classList.remove('hidden');
+      moonIcon.classList.add('hidden');
+    }
+
+    themeToggleBtn.addEventListener('click', function() {
+      if (htmlElement.classList.contains('dark')) {
+        htmlElement.classList.remove('dark');
+        localStorage.setItem('color-theme', 'light');
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+      } else {
+        htmlElement.classList.add('dark');
+        localStorage.setItem('color-theme', 'dark');
+        sunIcon.classList.remove('hidden');
+        moonIcon.classList.add('hidden');
+      }
+    });
+
+    // --- Simulator Logik ---
+    const simButton = document.getElementById('sim-meeting-btn');
+    const makerTimeline = document.getElementById('maker-timeline');
+    const makerEnergyBar = document.getElementById('maker-energy-bar');
+    const makerFlowStatus = document.getElementById('maker-flow-status');
+    const managerEnergyBar = document.getElementById('manager-energy-bar');
+    const managerFlowStatus = document.getElementById('manager-flow-status');
+    const simExplanation = document.getElementById('sim-explanation');
+
+    let hasMeeting = false;
+
+    simButton.addEventListener('click', function() {
+      if (!hasMeeting) {
+        // Lägg till möte
+        hasMeeting = true;
+        simButton.innerHTML = "❌ Återställ dagen till ostörd";
+        simButton.classList.replace('bg-red-600', 'bg-slate-600');
+        simButton.classList.replace('hover:bg-red-700', 'hover:bg-slate-700');
+
+        // Splittra skaparens dag
+        makerTimeline.innerHTML = `
+          <div class="bg-emerald-600 text-white p-2 rounded text-center text-[10px] md:text-xs font-bold h-12 flex items-center justify-center col-span-3">Fokus (Förmiddag)</div>
+          <div class="bg-amber-600 text-white p-2 rounded text-center text-[10px] md:text-xs font-bold h-12 flex items-center justify-center col-span-1">Uppstart (Dyr)</div>
+          <div class="bg-red-600 text-white p-2 rounded text-center text-[10px] md:text-xs font-bold h-12 flex items-center justify-center col-span-1">MÖTE (30m)</div>
+          <div class="bg-amber-600 text-white p-2 rounded text-center text-[10px] md:text-xs font-bold h-12 flex items-center justify-center col-span-1">Uppstart (Dyr)</div>
+          <div class="bg-emerald-600 text-white p-2 rounded text-center text-[10px] md:text-xs font-bold h-12 flex items-center justify-center col-span-2">Splittrat fokus</div>
+        `;
+
+        // Uppdatera flöde och mätare
+        makerEnergyBar.style.width = '35%';
+        makerEnergyBar.classList.replace('bg-emerald-500', 'bg-amber-500');
+        makerFlowStatus.innerText = "Mental energi / Flow: 35% (Kritiskt störd)";
+        makerFlowStatus.className = "text-xs px-2 py-1 rounded bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400 font-bold";
+
+        // Administratörens dag får bara ett till block, påverkas inte kognitivt
+        managerEnergyBar.style.width = '88%';
+        managerFlowStatus.innerText = "Effektivitet: 88% (Stabil)";
+
+        // Uppdatera förklaringstexten
+        simExplanation.className = "mt-4 p-4 bg-red-50 dark:bg-red-950/20 text-red-900 dark:text-red-300 rounded-xl text-sm border border-red-100 dark:border-red-900/40";
+        simExplanation.innerHTML = `
+          <strong>Konsekvens:</strong> Det korta mötet klockan 13:00 splittrade eftermiddagen i två delar. Skaparen tvingas nu genomgå två dyra uppstartsprocesser för att "ladda in" tankemodellen i hjärnan igen. Stor del av den kognitiva energin går förlorad!
+        `;
+
+      } else {
+        // Återställ dagen
+        hasMeeting = false;
+        simButton.innerHTML = "📅 Lägg till ett möte kl. 13:00";
+        simButton.classList.replace('bg-slate-600', 'bg-red-600');
+        simButton.classList.replace('hover:bg-slate-700', 'hover:bg-red-700');
+
+        // Normal skapardag
+        makerTimeline.innerHTML = `
+          <div class="bg-emerald-600 text-white p-2 rounded text-center text-[10px] md:text-xs font-bold h-12 flex items-center justify-center col-span-4 transition-all duration-300">Djupt Fokus (Förmiddag)</div>
+          <div class="bg-emerald-600 text-white p-2 rounded text-center text-[10px] md:text-xs font-bold h-12 flex items-center justify-center col-span-4 transition-all duration-300">Djupt Fokus (Eftermiddag)</div>
+        `;
+
+        makerEnergyBar.style.width = '95%';
+        makerEnergyBar.classList.replace('bg-amber-500', 'bg-emerald-500');
+        makerFlowStatus.innerText = "Mental energi / Flow: 95%";
+        makerFlowStatus.className = "text-xs px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 font-semibold";
+
+        managerEnergyBar.style.width = '90%';
+        managerFlowStatus.innerText = "Effektivitet: 90%";
+
+        simExplanation.className = "mt-4 p-4 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-900 dark:text-emerald-300 rounded-xl text-sm border border-emerald-100 dark:border-emerald-900/40";
+        simExplanation.innerHTML = `
+          <strong>Optimalt tillstånd:</strong> Utan möten har skaparen två massiva block av ostört fokus. Hjärnan når djup koncentration ("flow").
+        `;
+      }
+    });
+  </script>
+</body>
+</html>

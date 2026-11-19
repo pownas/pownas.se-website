@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Bilkalkylatorn - Elbil vs Bensin/Diesel</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 32px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 8px;
+    }
+    .desc {
+      margin-top: 12px;
+      color: #555;
+      font-size: 15px;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .columns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .column {
+      flex: 1;
+      min-width: 280px;
+      max-width: 400px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      padding: 20px;
+      border: 1px solid #e0e0e0;
+    }
+    .column h2 {
+      font-size: 18px;
+      margin-top: 0;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .column.elbil h2 {
+      color: #27ae60;
+    }
+    .column.fossil h2 {
+      color: #e67e22;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 14px;
+    }
+    label {
+      font-size: 14px;
+      color: #34495e;
+      margin-bottom: 4px;
+    }
+    input[type="number"] {
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .common-inputs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin: 20px 0;
+      padding: 16px;
+      background: #eef6fc;
+      border-radius: 8px;
+      border: 1px solid #b8daff;
+    }
+    .common-inputs h3 {
+      width: 100%;
+      text-align: center;
+      margin: 0 0 10px 0;
+      color: #2c3e50;
+      font-size: 16px;
+    }
+    .common-inputs .input-group {
+      min-width: 180px;
+    }
+    .result-box {
+      margin-top: 24px;
+      padding: 20px;
+      background: #eafaf1;
+      border-radius: 8px;
+      border: 1px solid #a3d9b1;
+      text-align: center;
+    }
+    .result-box h3 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+    .result-box p {
+      font-size: 16px;
+      color: #333;
+      margin: 8px 0;
+    }
+    .result-box .highlight {
+      font-size: 20px;
+      font-weight: 700;
+      color: #27ae60;
+    }
+    .result-box .no-breakeven {
+      font-size: 16px;
+      font-weight: 700;
+      color: #e74c3c;
+    }
+    canvas {
+      margin-top: 30px;
+    }
+    .info {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #888;
+      text-align: center;
+    }
+    @media (max-width: 640px) {
+      .container {
+        padding: 16px 10px;
+        margin: 16px;
+      }
+      .columns {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .column {
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Bilkalkylatorn</h1>
+    <div class="desc">
+      Jämför totala ägandekostnader (TCO) mellan elbil och bensin/dieselbil.<br>
+      Se när elbilen blir mer ekonomisk baserat på dina förutsättningar.
+    </div>
+
+    <div class="columns">
+      <div class="column elbil">
+        <h2>⚡ Elbil</h2>
+        <div class="input-group">
+          <label for="el-pris">Inköpspris (kr)</label>
+          <input type="number" id="el-pris" value="450000" min="0" step="10000">
+        </div>
+        <div class="input-group">
+          <label for="el-kwh">Energiförbrukning (kWh/mil)</label>
+          <input type="number" id="el-kwh" value="2" min="0.1" max="10" step="0.1">
+        </div>
+        <div class="input-group">
+          <label for="el-elpris">Elpris (kr/kWh)</label>
+          <input type="number" id="el-elpris" value="1.5" min="0" max="10" step="0.1">
+        </div>
+        <div class="input-group">
+          <label for="el-service">Årlig servicekostnad (kr)</label>
+          <input type="number" id="el-service" value="3000" min="0" step="500">
+        </div>
+        <div class="input-group">
+          <label for="el-varde">Årlig värdeminskning (%)</label>
+          <input type="number" id="el-varde" value="15" min="0" max="50" step="1">
+        </div>
+      </div>
+
+      <div class="column fossil">
+        <h2>⛽ Bensin/Diesel</h2>
+        <div class="input-group">
+          <label for="fossil-pris">Inköpspris (kr)</label>
+          <input type="number" id="fossil-pris" value="300000" min="0" step="10000">
+        </div>
+        <div class="input-group">
+          <label for="fossil-forbrukning">Bränsleförbrukning (l/mil)</label>
+          <input type="number" id="fossil-forbrukning" value="0.7" min="0.1" max="5" step="0.1">
+        </div>
+        <div class="input-group">
+          <label for="fossil-branslepris">Bränslepris (kr/l)</label>
+          <input type="number" id="fossil-branslepris" value="20" min="0" max="50" step="0.5">
+        </div>
+        <div class="input-group">
+          <label for="fossil-service">Årlig servicekostnad (kr)</label>
+          <input type="number" id="fossil-service" value="8000" min="0" step="500">
+        </div>
+        <div class="input-group">
+          <label for="fossil-varde">Årlig värdeminskning (%)</label>
+          <input type="number" id="fossil-varde" value="12" min="0" max="50" step="1">
+        </div>
+      </div>
+    </div>
+
+    <div class="common-inputs">
+      <h3>Gemensamma förutsättningar</h3>
+      <div class="input-group">
+        <label for="mil-per-ar">Körsträcka per år (mil)</label>
+        <input type="number" id="mil-per-ar" value="1500" min="100" max="50000" step="100">
+      </div>
+      <div class="input-group">
+        <label for="antal-ar">Beräkningsperiod (år)</label>
+        <input type="number" id="antal-ar" value="10" min="1" max="30" step="1">
+      </div>
+    </div>
+
+    <div class="result-box">
+      <h3>Resultat</h3>
+      <p id="result-text"></p>
+    </div>
+
+    <canvas id="chart" height="350"></canvas>
+
+    <p class="info">
+      Kalkylatorn visar en förenklad TCO-jämförelse. Verkliga kostnader kan variera beroende på
+      bilmodell, körvanor, geografisk plats och marknadspriser.
+    </p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    function berakna() {
+      // Elbil-parametrar
+      const elPris = parseFloat(document.getElementById('el-pris').value) || 0;
+      const elKwh = parseFloat(document.getElementById('el-kwh').value) || 0;
+      const elElpris = parseFloat(document.getElementById('el-elpris').value) || 0;
+      const elService = parseFloat(document.getElementById('el-service').value) || 0;
+      const elVarde = parseFloat(document.getElementById('el-varde').value) || 0;
+
+      // Fossil-parametrar
+      const fossilPris = parseFloat(document.getElementById('fossil-pris').value) || 0;
+      const fossilForbrukning = parseFloat(document.getElementById('fossil-forbrukning').value) || 0;
+      const fossilBranslepris = parseFloat(document.getElementById('fossil-branslepris').value) || 0;
+      const fossilService = parseFloat(document.getElementById('fossil-service').value) || 0;
+      const fossilVarde = parseFloat(document.getElementById('fossil-varde').value) || 0;
+
+      // Gemensamma parametrar
+      const milPerAr = parseFloat(document.getElementById('mil-per-ar').value) || 0;
+      const antalAr = parseInt(document.getElementById('antal-ar').value) || 1;
+
+      // Beräkna årlig drivmedelskostnad
+      const elDrivmedel = milPerAr * elKwh * elElpris;
+      const fossilDrivmedel = milPerAr * fossilForbrukning * fossilBranslepris;
+
+      // Beräkna TCO per år (ackumulerat)
+      const elTCO = [elPris];
+      const fossilTCO = [fossilPris];
+
+      let elRestvarde = elPris;
+      let fossilRestvarde = fossilPris;
+
+      for (let i = 1; i <= antalAr; i++) {
+        // Värdeminskning beräknas på föregående års restvärde
+        const elVardeminskning = elRestvarde * (elVarde / 100);
+        const fossilVardeminskning = fossilRestvarde * (fossilVarde / 100);
+
+        elRestvarde -= elVardeminskning;
+        fossilRestvarde -= fossilVardeminskning;
+
+        // TCO = Inköpspris + ackumulerade driftkostnader - restvärde
+        const elDrift = elDrivmedel * i + elService * i;
+        const fossilDrift = fossilDrivmedel * i + fossilService * i;
+
+        elTCO.push(elPris - elRestvarde + elDrift);
+        fossilTCO.push(fossilPris - fossilRestvarde + fossilDrift);
+      }
+
+      // Hitta break-even
+      let breakEvenAr = null;
+      for (let i = 1; i <= antalAr; i++) {
+        if (elTCO[i] <= fossilTCO[i]) {
+          breakEvenAr = i;
+          break;
+        }
+      }
+
+      // Visa resultat
+      const resultEl = document.getElementById('result-text');
+      if (breakEvenAr !== null) {
+        const besparingVidSlut = fossilTCO[antalAr] - elTCO[antalAr];
+        resultEl.innerHTML =
+          '<span class="highlight">Elbilen blir billigare efter ' + breakEvenAr + ' år!</span><br>' +
+          'Total besparing efter ' + antalAr + ' år: <strong>' +
+          Math.round(besparingVidSlut).toLocaleString('sv-SE') + ' kr</strong>';
+      } else if (elTCO[0] <= fossilTCO[0]) {
+        resultEl.innerHTML =
+          '<span class="highlight">Elbilen är billigare redan från start!</span>';
+      } else {
+        resultEl.innerHTML =
+          '<span class="no-breakeven">Elbilen blir inte billigare inom ' + antalAr + ' år.</span><br>' +
+          'Merkostnad efter ' + antalAr + ' år: <strong>' +
+          Math.round(elTCO[antalAr] - fossilTCO[antalAr]).toLocaleString('sv-SE') + ' kr</strong>';
+      }
+
+      // Rita graf
+      ritaGraf(elTCO, fossilTCO, antalAr);
+    }
+
+    let chart;
+    function ritaGraf(elTCO, fossilTCO, antalAr) {
+      const ctx = document.getElementById('chart').getContext('2d');
+      const labels = Array.from({length: antalAr + 1}, (_, i) => i + ' år');
+
+      const data = {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Elbil - Total kostnad (kr)',
+            data: elTCO.map(v => Math.round(v)),
+            borderColor: '#27ae60',
+            backgroundColor: 'rgba(39,174,96,0.10)',
+            fill: false,
+            tension: 0.3
+          },
+          {
+            label: 'Bensin/Diesel - Total kostnad (kr)',
+            data: fossilTCO.map(v => Math.round(v)),
+            borderColor: '#e67e22',
+            backgroundColor: 'rgba(230,126,34,0.10)',
+            fill: false,
+            tension: 0.3
+          }
+        ]
+      };
+
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: data,
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: 'TCO-jämförelse över tid' }
+          },
+          scales: {
+            y: {
+              title: { display: true, text: 'Total kostnad (kr)' },
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return value.toLocaleString('sv-SE');
+                }
+              }
+            },
+            x: {
+              title: { display: true, text: 'Tid' }
+            }
+          }
+        }
+      });
+    }
+
+    // Lyssna på alla inputs
+    document.querySelectorAll('input').forEach(function(inp) {
+      inp.addEventListener('input', berakna);
+    });
+
+    // Kör beräkning vid sidladdning
+    berakna();
+  </script>
+</body>
+</html>

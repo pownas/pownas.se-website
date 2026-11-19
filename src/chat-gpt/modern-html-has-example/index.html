@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart UI med :has() och Container Queries</title>
+  <style>
+    /* ==========================================================================
+       1. DYNAMISKA VARIABLER (THEMING VIA :has())
+       ========================================================================== */
+    :root {
+      --bg-page: #f4f6f9;
+      --bg-card: #ffffff;
+      --text-main: #1f2937;
+      --text-muted: #4b5563;
+      --border: #e5e7eb;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --fav-bg: #fef3c7;
+      --fav-border: #fbbf24;
+    }
+
+    /* Om body innehåller en markerad mörkläges-checkbox, byt ut alla variabler globalt! */
+    body:has(#theme-checkbox:checked) {
+      --bg-page: #0f172a;
+      --bg-card: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --accent: #38bdf8;
+      --accent-hover: #7dd3fc;
+      --fav-bg: #3c3216;
+      --fav-border: #d97706;
+    }
+
+    /* ==========================================================================
+       2. GRUNDLAYOUT
+       ========================================================================== */
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      margin: 0;
+      padding: 24px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    /* Dashboard-layout */
+    .dashboard {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* SKAPA CONTAINRAR: Säg åt webbläsaren att övervaka dessa zoner */
+    .sidebar-zone, .main-zone {
+      container-type: inline-size;
+      background-color: rgba(0, 0, 0, 0.02);
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    body:has(#theme-checkbox:checked) .sidebar-zone,
+    body:has(#theme-checkbox:checked) .main-zone {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .zone-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+
+    /* ==========================================================================
+       3. INTERAKTIVA KNAPPAR (CHECKBOX HACK MED INTERN :has())
+       ========================================================================== */
+    .btn-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      user-select: none;
+      transition: all 0.2s;
+    }
+
+    /* Göm själva checkbox-rutan visuellt men behåll den tillgänglig */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    /* Om knappen innehåller en markerad checkbox, ändra dess utseende */
+    .btn-toggle:has(.sr-only:checked) {
+      background-color: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* Specifik styling för favoritknappen inuti kortet */
+    .btn-fav:has(.sr-only:checked) {
+      background-color: #fbbf24;
+      border-color: #fbbf24;
+      color: #000;
+    }
+
+    /* ==========================================================================
+       4. DEN "SMARTA" KOMPONENTEN (.smart-card)
+       ========================================================================== */
+    .smart-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.2s ease;
+    }
+
+    /* --- Inre Interaktivitet 1: Favoritmarkerad --- */
+    /* Om kortet innehåller en markerad favorit-checkbox: ändra bakgrund och ram */
+    .smart-card:has(.fav-checkbox:checked) {
+      background-color: var(--fav-bg);
+      border-color: var(--fav-border);
+    }
+
+    /* --- Inre Interaktivitet 2: Expandera info --- */
+    .card-extra-info {
+      display: none; /* Dold som standard */
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+
+    /* Om kortet innehåller en markerad expander-checkbox: visa det dolda innehållet */
+    .smart-card:has(.expand-checkbox:checked) .card-extra-info {
+      display: block;
+    }
+
+    /* Visuell hjälp: Ändra text på knappen när den är expanderad */
+    .smart-card:has(.expand-checkbox:checked) .expand-label-text::before {
+      content: "Visa mindre";
+    }
+    .smart-card:not(:has(.expand-checkbox:checked)) .expand-label-text::before {
+      content: "Visa mer info";
+    }
+
+    /* Kortets visuella element */
+    .card-thumbnail {
+      width: 100%;
+      height: 120px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .card-body {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    /* ==========================================================================
+       5. COMBINATION STAGE: CONTAINER QUERIES MÖTER :has()
+       ========================================================================== */
+    /* Om containern (oberoende av skärmstorlek) är bredare än 500px, möblera om kortet! */
+    @container (min-width: 500px) {
+      .smart-card {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        grid-template-rows: auto auto;
+        gap: 16px;
+      }
+
+      .card-thumbnail {
+        grid-row: span 2;
+        height: 100%;
+        min-height: 140px;
+      }
+
+      /* Om kortet dessutom är EXPANDERAT i en bred container, låt texten flyta ner snyggt */
+      .smart-card:has(.expand-checkbox:checked) {
+        grid-template-rows: auto auto auto;
+      }
+
+      .smart-card:has(.expand-checkbox:checked) .card-extra-info {
+        grid-column: 1 / span 2; /* Låt den extra texten ta hela bredden längst ner */
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Dashboard</h1>
+    <!-- Global mörklägestoggle (ingen JS, styrs helt via body:has(#theme-checkbox:checked)) -->
+    <label class="btn-toggle">
+      <input type="checkbox" id="theme-checkbox" class="sr-only">
+      🌙 Dark Mode
+    </label>
+  </header>
+
+  <main class="dashboard">
+    
+    <!-- ZON 1: Sidomeny (Smal behållare) -->
+    <div class="sidebar-zone">
+      <p class="zone-title">Sidomeny (Smal container)</p>
+      
+      <!-- KORT 1 -->
+      <div class="smart-card">
+        <div class="card-thumbnail">Modul A</div>
+        <div>
+          <h3 class="card-title">Kompakt vy</h3>
+          <p class="card-body">Det här kortet tvingas till en staplad layout eftersom sidomenyn är smal.</p>
+        </div>
+        <div class="card-actions">
+          <label class="btn-toggle btn-fav">
+            <input type="checkbox" class="sr-only fav-checkbox"> 🌟
+          </label>
+          <label class="btn-toggle">
+            <input type="checkbox" class="sr-only expand-checkbox">
+            <span class="expand-label-text"></span>
+          </label>
+        </div>
+        <div class="card-extra-info">
+          Här är lite extra gömd information! Den här texten visas bara när du har klickat på checkboxen ovanför, tack vare CSS-väljaren <code>:has()</code>.
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ZON 2: Huvudyta (Bred behållare) -->
+    <div class="main-zone">
+      <p class="zone-title">Huvudyta (Bred container)</p>
+      
+      <!-- KORT 2 (Exakt likadan HTML-kod som Kort 1!) -->
+      <div class="smart-card">
+        <div class="card-thumbnail">Modul B</div>
+        <div>
+          <h3 class="card-title">Bred Grid-vy</h3>
+          <p class="card-body">Det här kortet har <strong>exakt samma HTML</strong> som det i sidomenyn, men känner av att utrymmet är brett och lägger sig i två spalter.</p>
+        </div>
+        <div class="card-actions">
+          <label class="btn-toggle btn-fav">
+            <input type="checkbox" class="sr-only fav-checkbox"> 🌟 Favorit
+          </label>
+          <label class="btn-toggle">
+            <input type="checkbox" class="sr-only expand-checkbox">
+            <span class="expand-label-text"></span>
+          </label>
+        </div>
+        <div class="card-extra-info">
+          Eftersom det här kortet ligger i en bred container, använder CSS <code>@container</code> och <code>:has()</code> i kombination för att låta det här extra textblocket sträcka ut sig över båda spalterna längst ner i kortet.
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+</body>
+</html>

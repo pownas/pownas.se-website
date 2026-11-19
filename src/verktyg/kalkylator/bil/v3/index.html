@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ekonomisk Bilkalkyl - El vs Bensin</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #2c3e50;
+            --primary: #3498db;
+            --bensin-color: #e74c3c;
+            --el-dyr-color: #f39c12;
+            --el-billig-color: #2ecc71;
+            --border-radius: 8px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 950px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 8px;
+        }
+
+        .slider-group {
+            margin-bottom: 18px;
+        }
+
+        .slider-group label {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .slider-group label span {
+            color: var(--primary);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin-top: 4px;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 380px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            border-radius: 4px;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .color-box {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .summary-box {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 500px) {
+            .summary-box {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .summary-item {
+            padding: 10px;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Ekonomisk Jämförelse: Behålla eller Byta till Elbil</h1>
+    
+    <div class="grid">
+        <!-- Kontrollpanel -->
+        <div class="sidebar">
+            <div class="card">
+                <h2>Inköpspriser / Värde (kr)</h2>
+                <div class="slider-group">
+                    <label style="color: var(--bensin-color)">Nuvarande Bensin: <span id="price-bensin-val">150 000</span> kr</label>
+                    <input type="range" id="price-bensin" min="50000" max="500000" step="5000" value="150000">
+                </div>
+                <div class="slider-group">
+                    <label style="color: var(--el-dyr-color)">Dyr Elbil: <span id="price-eldyr-val">320 000</span> kr</label>
+                    <input type="range" id="price-eldyr" min="50000" max="500000" step="5000" value="320000">
+                </div>
+                <div class="slider-group">
+                    <label style="color: var(--el-billig-color)">Billig Elbil (Zoe): <span id="price-elbillig-val">120 000</span> kr</label>
+                    <input type="range" id="price-elbillig" min="50000" max="500000" step="5000" value="120000">
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Gemensamma Förutsättningar</h2>
+                <div class="slider-group">
+                    <label>Årlig körsträcka: <span id="mil-val">1500</span> mil</label>
+                    <input type="range" id="mil" min="500" max="4000" step="100" value="1500">
+                </div>
+                <div class="slider-group">
+                    <label>Bensinpris: <span id="bensinpris-val">17.0</span> kr/l</label>
+                    <input type="range" id="bensinpris" min="15" max="25" step="0.5" value="17">
+                </div>
+                <div class="slider-group">
+                    <label>Eget Elpris (med solceller): <span id="elpris-val">1.50</span> kr/kWh</label>
+                    <input type="range" id="elpris" min="0.5" max="4.0" step="0.1" value="1.5">
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Årlig Värdeminskning (%)</h2>
+                <div class="slider-group">
+                    <label style="color: var(--bensin-color)">Bensinbil: <span id="dep-bensin-val">12</span>%</label>
+                    <input type="range" id="dep-bensin" min="5" max="25" step="1" value="12">
+                </div>
+                <div class="slider-group">
+                    <label style="color: var(--el-dyr-color)">Dyr Elbil: <span id="dep-eldyr-val">15</span>%</label>
+                    <input type="range" id="dep-eldyr" min="8" max="25" step="1" value="15">
+                </div>
+                <div class="slider-group">
+                    <label style="color: var(--el-billig-color)">Billig Elbil: <span id="dep-elbillig-val">10</span>%</label>
+                    <input type="range" id="dep-elbillig" min="5" max="20" step="1" value="10">
+                </div>
+            </div>
+        </div>
+
+        <!-- Diagram och uträkning -->
+        <div class="main-content">
+            <div class="card">
+                <h2>Ackumulerad Totalkostnad över 5 år (Värdeminskning + Drift)</h2>
+                <div class="canvas-container">
+                    <canvas id="chart"></canvas>
+                </div>
+                <div class="legend">
+                    <div class="legend-item"><div class="color-box" style="background: var(--bensin-color)"></div> Bensinbil</div>
+                    <div class="legend-item"><div class="color-box" style="background: var(--el-dyr-color)"></div> Dyr Elbil</div>
+                    <div class="legend-item"><div class="color-box" style="background: var(--el-billig-color)"></div> Billig Elbil (Zoe)</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Total ackumulerad kostnad efter 3 år (Lägre är bättre)</h2>
+                <div class="summary-box">
+                    <div class="summary-item" style="background: var(--bensin-color)" id="sum-bensin">-</div>
+                    <div class="summary-item" style="background: var(--el-dyr-color)" id="sum-eldyr">-</div>
+                    <div class="summary-item" style="background: var(--el-billig-color)" id="sum-elbillig">-</div>
+                </div>
+                <p style="font-size: 0.85rem; margin-top: 15px; color: #666; text-align: center;">
+                    *Kalkylen visar summan av bilens löpande värdeminskning i kronor samt förbrukat bränsle/el och skatt fram till år 3.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Alla inputs som ska lyssnas på
+    const inputs = [
+        'price-bensin', 'price-eldyr', 'price-elbillig',
+        'mil', 'bensinpris', 'elpris', 
+        'dep-bensin', 'dep-eldyr', 'dep-elbillig'
+    ];
+    const elements = {};
+    inputs.forEach(id => {
+        elements[id] = document.getElementById(id);
+        elements[id + '-val'] = document.getElementById(id + '-val');
+    });
+
+    const canvas = document.getElementById('chart');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+        updateChart();
+    }
+
+    function calculateTCO() {
+        const mil = parseFloat(elements.mil.value);
+        const bensinpris = parseFloat(elements.bensinpris.value);
+        const elpris = parseFloat(elements.elpris.value);
+        
+        const priceBensin = parseFloat(elements['price-bensin'].value);
+        const priceElDyr = parseFloat(elements['price-eldyr'].value);
+        const priceElBillig = parseFloat(elements['price-elbillig'].value);
+
+        const depBensin = parseFloat(elements['dep-bensin'].value) / 100;
+        const depElDyr = parseFloat(elements['dep-eldyr'].value) / 100;
+        const depElBillig = parseFloat(elements['dep-elbillig'].value) / 100;
+
+        // Årliga driftkostnader (Bränsle/El + Skatt)
+        const operationalBensin = (mil * 0.65 * bensinpris) + 480; 
+        const operationalElDyr = (mil * 1.8 * elpris) + 360;
+        const operationalElBillig = (mil * 1.7 * elpris) + 360; 
+
+        let data = { bensin: [0], elDyr: [0], elBillig: [0] };
+        
+        let currentValBensin = priceBensin;
+        let currentValElDyr = priceElDyr;
+        let currentValElBillig = priceElBillig;
+
+        let accBensin = 0;
+        let accElDyr = 0;
+        let accElBillig = 0;
+
+        for (let y = 1; y <= 5; y++) {
+            let lossBensin = currentValBensin * depBensin;
+            let lossElDyr = currentValElDyr * depElDyr;
+            let lossElBillig = currentValElBillig * depElBillig;
+
+            currentValBensin -= lossBensin;
+            currentValElDyr -= lossElDyr;
+            currentValElBillig -= lossElBillig;
+
+            accBensin += lossBensin + operationalBensin;
+            accElDyr += lossElDyr + operationalElDyr;
+            accElBillig += lossElBillig + operationalElBillig;
+
+            data.bensin.push(accBensin);
+            data.elDyr.push(accElDyr);
+            data.elBillig.push(accElBillig);
+        }
+        return data;
+    }
+
+    function updateChart() {
+        // Uppdatera textetiketter
+        inputs.forEach(id => {
+            let val = elements[id].value;
+            if(id.startsWith('price')) {
+                elements[id + '-val'].innerText = parseFloat(val).toLocaleString('sv-SE');
+            } else {
+                elements[id + '-val'].innerText = val;
+            }
+        });
+
+        const data = calculateTCO();
+        
+        // Uppdatera år 3-rutorna
+        document.getElementById('sum-bensin').innerText = `Bensin: ${Math.round(data.bensin[3]).toLocaleString('sv-SE')} kr`;
+        document.getElementById('sum-eldyr').innerText = `Dyr El: ${Math.round(data.elDyr[3]).toLocaleString('sv-SE')} kr`;
+        document.getElementById('sum-elbillig').innerText = `Billig El: ${Math.round(data.elBillig[3]).toLocaleString('sv-SE')} kr`;
+
+        const w = canvas.getBoundingClientRect().width;
+        const h = canvas.getBoundingClientRect().height;
+        ctx.clearRect(0, 0, w, h);
+
+        const paddingLeft = 75;
+        const paddingBottom = 40;
+        const paddingTop = 20;
+        const paddingRight = 20;
+        
+        const graphWidth = w - paddingLeft - paddingRight;
+        const graphHeight = h - paddingTop - paddingBottom;
+
+        // Hitta maxvärde dynamiskt för Y-axeln för att förhindra att linjerna slår i taket
+        const maxCost = Math.max(...data.bensin, ...data.elDyr, ...data.elBillig, 20000);
+        const yMax = Math.ceil(maxCost / 20000) * 20000;
+
+        // Rita rutnät och Y-axel
+        ctx.strokeStyle = '#eee';
+        ctx.fillStyle = '#666';
+        ctx.font = '11px sans-serif';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        
+        const gridLines = 5;
+        for (let i = 0; i <= gridLines; i++) {
+            let yVal = (yMax / gridLines) * i;
+            let yPos = h - paddingBottom - (yVal / yMax) * graphHeight;
+            
+            ctx.beginPath();
+            ctx.moveTo(paddingLeft, yPos);
+            ctx.lineTo(w - paddingRight, yPos);
+            ctx.stroke();
+            
+            ctx.fillText(Math.round(yVal).toLocaleString('sv-SE') + " kr", paddingLeft - 8, yPos);
+        }
+
+        // Rita X-axel (År)
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        for (let y = 0; y <= 5; y++) {
+            let xPos = paddingLeft + (y / 5) * graphWidth;
+            ctx.fillText("År " + y, xPos, h - paddingBottom + 8);
+        }
+
+        function drawLine(points, color) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            for (let y = 0; y <= 5; y++) {
+                let xPos = paddingLeft + (y / 5) * graphWidth;
+                let yPos = h - paddingBottom - (points[y] / yMax) * graphHeight;
+                if (y === 0) ctx.moveTo(xPos, yPos);
+                else ctx.lineTo(xPos, yPos);
+            }
+            ctx.stroke();
+        }
+
+        drawLine(data.bensin, '#e74c3c');
+        drawLine(data.elDyr, '#f39c12');
+        drawLine(data.elBillig, '#2ecc71');
+    }
+
+    inputs.forEach(id => {
+        elements[id].addEventListener('input', updateChart);
+    });
+
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('load', resizeCanvas);
+</script>
+</body>
+</html>

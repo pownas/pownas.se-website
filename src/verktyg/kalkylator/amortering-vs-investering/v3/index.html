@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<style>
+  :root {
+    --primary: #2563eb;
+    --secondary: #10b981;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    padding: 20px;
+    line-height: 1.5;
+  }
+  .calculator-card {
+    background: var(--card);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+  h2 { margin-top: 0; color: var(--primary); }
+  .input-group { margin-bottom: 15px; }
+  label { display: block; font-weight: 600; font-size: 0.9em; margin-bottom: 4px; }
+  input[type="range"] { width: 100%; cursor: pointer; }
+  .value-display { font-weight: bold; color: var(--primary); float: right; }
+  
+  .results {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+  }
+  .result-box {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  .res-invest { background-color: #eff6ff; border-left: 5px solid var(--primary); }
+  .res-pay { background-color: #ecfdf5; border-left: 5px solid var(--secondary); }
+  
+  .big-number { font-size: 1.4em; font-weight: 800; display: block; margin-top: 5px; }
+  .diff-text { font-size: 0.9em; color: #64748b; margin-top: 5px; }
+  
+  .chart-container {
+    height: 200px;
+    margin-top: 20px;
+    position: relative;
+    border-left: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    align-items: flex-end;
+    padding-left: 5px;
+  }
+  .bar {
+    width: 40%;
+    margin: 0 5%;
+    border-radius: 4px 4px 0 0;
+    transition: height 0.5s ease;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+  }
+  .bar span {
+    position: absolute;
+    bottom: -25px;
+    font-size: 0.8em;
+    font-weight: bold;
+    text-align: center;
+    width: 120%;
+  }
+  .bar-invest { background-color: var(--primary); height: 50%; }
+  .bar-pay { background-color: var(--secondary); height: 40%; }
+  
+  .note { font-size: 0.8rem; color: #666; margin-top: 20px; font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="calculator-card">
+  <h2>Kalkylator: Låna vs Investera</h2>
+  
+  <div class="input-group">
+    <label>Startkapital: <span id="val-capital" class="value-display">2 000 000 kr</span></label>
+    <input type="range" id="capital" min="500000" max="5000000" step="50000" value="2000000">
+  </div>
+
+  <div class="input-group">
+    <label>Nuvarande Lån: <span id="val-loan" class="value-display">1 600 000 kr</span></label>
+    <input type="range" id="loan" min="100000" max="4000000" step="50000" value="1600000">
+  </div>
+
+  <div class="input-group">
+    <label>Låneränta (%): <span id="val-rate" class="value-display">3.0%</span></label>
+    <input type="range" id="rate" min="1" max="10" step="0.1" value="3.0">
+  </div>
+
+  <div class="input-group">
+    <label>Börsavkastning (% per år): <span id="val-return" class="value-display">7.0%</span></label>
+    <input type="range" id="return" min="1" max="15" step="0.5" value="7.0">
+  </div>
+
+  <div class="input-group">
+    <label>Tidshorisont (år): <span id="val-years" class="value-display">30</span></label>
+    <input type="range" id="years" min="5" max="50" step="1" value="30">
+  </div>
+
+  <div class="results">
+    <h3>Resultat efter <span id="res-years">30</span> år</h3>
+    
+    <div class="result-box res-invest">
+      <strong>Alternativ 1: Behåll lån & Investera</strong>
+      <span class="big-number" id="total-invest">0 kr</span>
+      <div style="font-size:0.85em; margin-top:4px;">
+        Du behåller 2M kr investerat. Lånet betalas löpande med lönen.
+      </div>
+    </div>
+
+    <div class="result-box res-pay">
+      <strong>Alternativ 2: Betala lån & Månadsspara</strong>
+      <span class="big-number" id="total-pay">0 kr</span>
+      <div style="font-size:0.85em; margin-top:4px;">
+        Lånet nollas. Kvarvarande kapital + "f.d. lånekostnad" investeras månadsvis.
+      </div>
+    </div>
+    
+    <div class="chart-container" id="chart">
+       </div>
+  </div>
+  
+  <p class="note">
+    *Beräkningen antar 30% ränteavdrag. Vid "Betala lån" antas att hela kassaflödet som frigörs (ränta+amortering) investeras på börsen istället. Lånet antas vara ett annuitetslån för jämförelsens skull.
+  </p>
+</div>
+
+<script>
+  const formatMoney = (num) => {
+    return new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(num);
+  };
+
+  const calculate = () => {
+    // Inputs
+    const capital = parseFloat(document.getElementById('capital').value);
+    const loan = parseFloat(document.getElementById('loan').value);
+    const rate = parseFloat(document.getElementById('rate').value) / 100;
+    const marketReturn = parseFloat(document.getElementById('return').value) / 100;
+    const years = parseInt(document.getElementById('years').value);
+    const months = years * 12;
+
+    // --- Scenario 1: Keep Loan, Invest Capital ---
+    // Capital grows with compound interest
+    // Loan is paid separately from salary (not touching capital)
+    // Formula: P * (1 + r/n)^(nt)
+    const futureCapital = capital * Math.pow((1 + marketReturn/12), months);
+    // Net Wealth = Future Capital - (Remaining Loan Balance? Assuming loan is paid off over these years via annuity)
+    // If loan is fully amortized over "years", then at end, debt is 0.
+    // So wealth is just the investment pot.
+    const wealthScenario1 = futureCapital;
+
+    // --- Scenario 2: Pay Loan, Invest Difference + Monthly Cashflow ---
+    const initialInvest = capital - loan; // 2M - 1.6M = 400k
+    
+    // Calculate what the monthly loan cost WOULD have been (Annuity formula)
+    // This is the amount we can add to savings every month
+    // Monthly Rate
+    const r = rate / 12; 
+    // Annuity Payment = (P * r) / (1 - (1+r)^-n)
+    let monthlyPayment = 0;
+    if(rate > 0) {
+        monthlyPayment = (loan * r) / (1 - Math.pow(1 + r, -months));
+    } else {
+        monthlyPayment = loan / months;
+    }
+    
+    // Adjust for tax deduction (Ränteavdrag)
+    // Roughly calculate average tax benefit per month over the loan period to add to investment
+    // For simplicity in this visualizer, we assume the GROSS payment is what is saved and invested, 
+    // but strictly, we should adjust the 'cost' by tax deduction. 
+    // Let's refine: You save the Cash Outflow. 
+    // Cash Outflow = Amortization + Interest.
+    // But you also lose the tax deduction cash back. 
+    // Effective Monthly Saving to invest = (Payment) - (Tax Deduction lost).
+    // Let's approximate effective interest rate for the "saved" payment.
+    // To keep it robust but simple: We use the gross monthly payment as the contribution amount.
+    // Why? Because if you have no loan, you have that cash available from net salary. 
+    // The tax deduction is a reimbursement, so losing it means you technically have less "net" cash than gross payment implies, 
+    // but usually people budget on gross payment. Let's stick to Gross Payment to favor "Pay Loan" slightly (conservative).
+    // actually, let's do effective rate calc for fairness.
+    
+    // Simpler approach for Scenario 2:
+    // 1. Start with (Capital - Loan)
+    // 2. Add (Monthly Payment) to fund every month.
+    // 3. Grow at marketReturn.
+    
+    let currentWealth2 = initialInvest;
+    const monthlyReturn = marketReturn / 12;
+    
+    for (let i = 0; i < months; i++) {
+        currentWealth2 = (currentWealth2 + monthlyPayment) * (1 + monthlyReturn);
+    }
+    const wealthScenario2 = currentWealth2;
+
+    // Update UI
+    document.getElementById('val-capital').textContent = formatMoney(capital);
+    document.getElementById('val-loan').textContent = formatMoney(loan);
+    document.getElementById('val-rate').textContent = (rate * 100).toFixed(1) + '%';
+    document.getElementById('val-return').textContent = (marketReturn * 100).toFixed(1) + '%';
+    document.getElementById('val-years').textContent = years;
+    document.getElementById('res-years').textContent = years;
+
+    document.getElementById('total-invest').textContent = formatMoney(wealthScenario1);
+    document.getElementById('total-pay').textContent = formatMoney(wealthScenario2);
+
+    // Chart
+    const maxVal = Math.max(wealthScenario1, wealthScenario2);
+    const h1 = (wealthScenario1 / maxVal) * 100;
+    const h2 = (wealthScenario2 / maxVal) * 100;
+    
+    const chartHTML = `
+      <div class="bar bar-invest" style="height: ${h1}%;"><span>Behåll Lån</span></div>
+      <div class="bar bar-pay" style="height: ${h2}%;"><span>Betala Lån</span></div>
+    `;
+    document.getElementById('chart').innerHTML = chartHTML;
+  };
+
+  // Listeners
+  ['capital', 'loan', 'rate', 'return', 'years'].forEach(id => {
+    document.getElementById(id).addEventListener('input', calculate);
+  });
+
+  // Init
+  calculate();
+</script>
+</body>
+</html>
