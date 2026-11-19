@@ -845,7 +845,7 @@
 
             carCard.innerHTML = `
                 <div class="car-header">
-                    <input type="text" class="car-title" value="${car.name}" onchange="updateCarName(${car.id}, this.value)">
+                    <input type="text" class="car-title" onchange="updateCarName(${car.id}, this.value)">
                     ${cars.length > 2 ? `<button class="btn-remove" onclick="removeCar(${car.id})" title="Ta bort bil">✕</button>` : ''}
                 </div>
                 <div class="car-body">
@@ -924,6 +924,7 @@
                     </div>
                 </div>
             `;
+            carCard.querySelector('.car-title').value = car.name;
             grid.appendChild(carCard);
         });
 
@@ -941,10 +942,18 @@
         const totalMonths = years * 12;
 
         const banner = document.getElementById('energy-banner');
-        let bannerTexts = [`📍 <strong>Elområde:</strong> ${currentZone}`];
-        if (hasSolar) bannerTexts.push("☀️ <strong>Solceller:</strong> Ca 50–60% av laddning sker med egengenererad el (kraftigt sänkt elkostnad).");
-        if (hasV2G) bannerTexts.push(`⚡ <strong>V2G/V2H:</strong> Elbilen agerar husbatteri/arbitrage (+${zoneData.v2gMonthlySavings} kr/mån i intäkt/besparing).`);
-        banner.innerHTML = bannerTexts.join("<br>");
+        banner.replaceChildren();
+        const appendBannerMessage = (icon, label, message) => {
+            if (banner.childNodes.length) {
+                banner.appendChild(document.createElement('br'));
+            }
+            const emphasis = document.createElement('strong');
+            emphasis.textContent = label;
+            banner.append(`${icon} `, emphasis, ` ${message}`);
+        };
+        appendBannerMessage('📍', 'Elområde:', currentZone);
+        if (hasSolar) appendBannerMessage('☀️', 'Solceller:', 'Ca 50–60% av laddning sker med egengenererad el (kraftigt sänkt elkostnad).');
+        if (hasV2G) appendBannerMessage('⚡', 'V2G/V2H:', `Elbilen agerar husbatteri/arbitrage (+${zoneData.v2gMonthlySavings} kr/mån i intäkt/besparing).`);
 
         const results = cars.map((car, idx) => {
             let depPerMonth = 0;
@@ -1051,8 +1060,11 @@
                     <div class="bar-segment" style="height: ${taxInsH}%; background: #3b82f6;" title="Skatt & Försäkring: ${Math.round(r.taxInsurancePerMonth)} kr/mån"></div>
                     <div class="bar-segment" style="height: ${maintH}%; background: #8b5cf6;" title="Service/Däck/Övrigt: ${Math.round(r.maintenanceOtherPerMonth)} kr/mån"></div>
                 </div>
-                <div class="bar-label" title="${r.car.name}">${r.car.name}</div>
+                <div class="bar-label"></div>
             `;
+            const label = group.querySelector('.bar-label');
+            label.title = r.car.name;
+            label.textContent = r.car.name;
             container.appendChild(group);
         });
     }
@@ -1086,7 +1098,7 @@
 
             item.innerHTML = `
                 <div style="display:flex; justify-between; align-items:center;">
-                    <h3 style="color:${r.color}; font-size:0.95rem;">${r.car.name} ${isCheapest ? '<span style="font-size:0.7rem; background:#10b981; color:#000; padding:2px 6px; border-radius:4px; margin-left:6px;">LÄGST TCO</span>' : ''}</h3>
+                    <h3 style="color:${r.color}; font-size:0.95rem;"></h3>
                 </div>
                 <div class="summary-metrics" style="margin-top:8px;">
                     <div>
@@ -1103,6 +1115,19 @@
                     Totalt över ${years} år (${(years * distancePerYear).toLocaleString('sv-SE')} mil): <strong>${Math.round(r.totalCostSum).toLocaleString('sv-SE')} kr</strong>
                 </div>
             `;
+            const title = item.querySelector('h3');
+            title.textContent = r.car.name;
+            if (isCheapest) {
+                const badge = document.createElement('span');
+                badge.style.fontSize = '0.7rem';
+                badge.style.background = '#10b981';
+                badge.style.color = '#000';
+                badge.style.padding = '2px 6px';
+                badge.style.borderRadius = '4px';
+                badge.style.marginLeft = '6px';
+                badge.textContent = 'LÄGST TCO';
+                title.append(' ', badge);
+            }
             list.appendChild(item);
         });
     }
@@ -1111,7 +1136,16 @@
         const header = document.getElementById('table-header');
         const body = document.getElementById('table-body');
 
-        header.innerHTML = '<th>Kostnadspost (SEK/mån)</th>' + results.map(r => `<th style="color:${r.color}">${r.car.name}</th>`).join('');
+        header.replaceChildren();
+        const labelHeader = document.createElement('th');
+        labelHeader.textContent = 'Kostnadspost (SEK/mån)';
+        header.appendChild(labelHeader);
+        results.forEach(result => {
+            const carHeader = document.createElement('th');
+            carHeader.style.color = result.color;
+            carHeader.textContent = result.car.name;
+            header.appendChild(carHeader);
+        });
 
         const rows = [
             { label: "Värdeminskning / Leasingavgift", key: "depPerMonth" },

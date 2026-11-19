@@ -315,12 +315,25 @@ function createLumpRow(year=1, amount=10000){
   wrapper.style.padding = '8px';
   wrapper.style.display = 'flex';
   wrapper.style.gap = '8px';
-  wrapper.innerHTML = `
-    <input type="number" class="lump-year" step="0.01" value="${year}" title="År" />
-    <input type="number" class="lump-amount" value="${amount}" title="Belopp" />
-    <button class="remove-lump">Ta bort</button>
-  `;
-  wrapper.querySelector('.remove-lump').addEventListener('click', ()=>wrapper.remove());
+  const yearInput = document.createElement('input');
+  yearInput.type = 'number';
+  yearInput.className = 'lump-year';
+  yearInput.step = '0.01';
+  yearInput.value = String(year);
+  yearInput.title = 'År';
+
+  const amountInput = document.createElement('input');
+  amountInput.type = 'number';
+  amountInput.className = 'lump-amount';
+  amountInput.value = String(amount);
+  amountInput.title = 'Belopp';
+
+  const removeButton = document.createElement('button');
+  removeButton.className = 'remove-lump';
+  removeButton.textContent = 'Ta bort';
+  removeButton.addEventListener('click', ()=>wrapper.remove());
+
+  wrapper.append(yearInput, amountInput, removeButton);
   return wrapper;
 }
 
@@ -621,7 +634,14 @@ function buildLegend(container){
   chart.datasets.forEach(ds=>{
     const item = document.createElement('div'); item.className='legend-item'; item.dataset.key = ds.key;
     const sw = document.createElement('div'); sw.className='legend-swatch'; sw.style.background = ds.color; sw.style.opacity = ds.visible ? '1' : '0.35';
-    const label = document.createElement('div'); label.innerHTML = `<div style="font-weight:600">${ds.label}</div><div class="small muted">${ds.hint||''}</div>`;
+    const label = document.createElement('div');
+    const title = document.createElement('div');
+    title.style.fontWeight = '600';
+    title.textContent = ds.label;
+    const hint = document.createElement('div');
+    hint.className = 'small muted';
+    hint.textContent = ds.hint || '';
+    label.append(title, hint);
     item.appendChild(sw); item.appendChild(label);
     item.addEventListener('click', ()=>{ ds.visible = !ds.visible; sw.style.opacity = ds.visible ? '1' : '0.35'; drawChart(); });
     container.appendChild(item);
@@ -634,7 +654,43 @@ function showTooltip(x,y,items,year){
   tooltipEl.style.display = 'block';
   tooltipEl.style.left = (x + 12) + 'px';
   tooltipEl.style.top = Math.max(8, y - 8) + 'px';
-  tooltipEl.innerHTML = `<div style="font-weight:700;margin-bottom:6px">${year} år</div>` + items.map(it=>`<div style="display:flex;justify-content:space-between;gap:12px"><div style="display:flex;gap:8px;align-items:center"><span style="width:10px;height:10px;background:${it.color};display:inline-block;border-radius:2px"></span>${it.label}</div><div style="font-weight:700">${fmt(it.value, $('currency').value)}</div></div>`).join('');
+  tooltipEl.replaceChildren();
+
+  const heading = document.createElement('div');
+  heading.style.fontWeight = '700';
+  heading.style.marginBottom = '6px';
+  heading.textContent = `${year} år`;
+  tooltipEl.appendChild(heading);
+
+  items.forEach(item => {
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.justifyContent = 'space-between';
+    row.style.gap = '12px';
+
+    const description = document.createElement('div');
+    description.style.display = 'flex';
+    description.style.gap = '8px';
+    description.style.alignItems = 'center';
+
+    const swatch = document.createElement('span');
+    swatch.style.width = '10px';
+    swatch.style.height = '10px';
+    swatch.style.backgroundColor = item.color;
+    swatch.style.display = 'inline-block';
+    swatch.style.borderRadius = '2px';
+
+    const label = document.createElement('span');
+    label.textContent = item.label;
+    description.append(swatch, label);
+
+    const value = document.createElement('div');
+    value.style.fontWeight = '700';
+    value.textContent = fmt(item.value, $('currency').value);
+
+    row.append(description, value);
+    tooltipEl.appendChild(row);
+  });
 }
 
 /* Read UI opts (including lumps) */
